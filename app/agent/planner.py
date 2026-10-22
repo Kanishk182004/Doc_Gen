@@ -89,8 +89,8 @@ Return ONLY valid JSON matching this schema:
             constraints.append("8-week delivery timeframe")
         if "limited budget" in req_lower or "small team" in req_lower:
             constraints.append("Resource constraints: Small team with limited budget")
-        if "no vendor" in req_lower or "not chosen a vendor" in req_lower:
-            constraints.append("Vendor unconfirmed: Do not invent exact pricing")
+        if "no vendor" in req_lower or "not chosen a vendor" in req_lower or "without inventing exact costs" in req_lower or "do not invent exact costs" in req_lower:
+            constraints.append("Pricing and vendor unconfirmed: Do not invent exact costs or vendor selections")
 
         return DocumentIntake(
             objective=user_request[:120].strip(),

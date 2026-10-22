@@ -70,13 +70,14 @@ class ExecutionOrchestrator:
                 elif task.tool == "validate_document_quality":
                     review: QualityReview = self.tools.execute_tool(
                         "validate_document_quality",
-                        doc_content=context["doc_content"]
+                        doc_content=context["doc_content"],
+                        intake=context["intake"]
                     )
                     
                     # Reflection & Bounded Self-Correction:
                     if not review.passed:
                         logger.warning("Quality check failed. Initiating bounded correction pass.")
-                        # Apply bounded correction: Ensure fallback content replaces incomplete sections
+                        # Apply bounded correction: Ensure fallback content replaces incomplete or ungrounded sections
                         repaired_content = self.tools._generate_fallback_content(
                             context["intake"], context["outline"]
                         )
@@ -84,7 +85,8 @@ class ExecutionOrchestrator:
                         # Re-run review
                         review = self.tools.execute_tool(
                             "validate_document_quality",
-                            doc_content=repaired_content
+                            doc_content=repaired_content,
+                            intake=context["intake"]
                         )
                     
                     context["quality_review"] = review

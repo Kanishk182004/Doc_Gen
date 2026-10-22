@@ -1,7 +1,8 @@
 import logging
 import uuid
+import re
 from pathlib import Path
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, Optional
 from app.schemas import (
     DocumentIntake,
     ExecutionPlan,
@@ -129,10 +130,11 @@ Explicit Assumptions: {intake.assumptions}
 Approved Outline: {outline}
 
 GUIDELINES:
-1. NEVER invent confirmed prices, vendor agreements, or stakeholder decisions. If unknown, treat as proposed or assumed.
-2. For Project Plans: Include milestone tables, risk tables, roles, and measurable KPIs.
-3. For Proposals: Provide an in-depth comparison table between options (e.g., Pilot vs Full Rollout), risks, and proposed metrics.
-4. Output rich, professional text with clear bullet points and structured tables.
+1. NEVER invent confirmed prices, specific dollar budgets, vendor agreements, or stakeholder decisions. If unknown, treat as proposed, use qualitative budget guardrails (e.g. pay-as-you-go or capped tiers), and recommend obtaining vendor quotes.
+2. If numerical examples are genuinely useful, clearly label them as hypothetical illustrations and do NOT present them as company-specific commitments.
+3. For Project Plans: Include milestone tables, risk tables, roles, and measurable KPIs.
+4. For Proposals: Provide an in-depth comparison table between options (e.g., Pilot vs Full Rollout), risks, and proposed metrics. Clearly label suggested targets as proposed targets, not measured results.
+5. Output rich, professional text with clear bullet points and structured tables.
 
 Return ONLY valid JSON matching this schema:
 {{
@@ -312,11 +314,11 @@ Return ONLY valid JSON matching this schema:
                 SectionContent(
                     heading="4. Risk Assessment & Budget Guardrails",
                     level=1,
-                    body="Because exact vendor pricing has not yet been selected, budget guardrails and risk mitigations are defined.",
-                    table_headers=["Risk Area", "Operational Risk", "Mitigation & Guardrail"],
+                    body="Because exact vendor pricing has not yet been established, qualitative budget guardrails and risk mitigations are defined to prevent unexpected commitments.",
+                    table_headers=["Risk Area", "Operational Risk", "Mitigation & Qualitative Guardrail"],
                     table_rows=[
-                        ["Budget Variance", "Uncapped usage fees exceeding monthly budget", "Set hard spend caps ($100–$250/mo) at the API provider level."],
-                        ["Vendor Fit", "Chosen vendor lacks critical helpdesk connectors", "Evaluate only vendors offering zero-commitment self-service trials."],
+                        ["Budget Variance", "Uncapped usage fees exceeding monthly budget", "Require strict hard-spend caps at the API provider level and request formal vendor price quotes."],
+                        ["Vendor Fit", "Chosen vendor lacks critical helpdesk connectors", "Evaluate only vendors offering zero-commitment self-service trials before entering commercial talks."],
                         ["Data Confidentiality", "Customer PII transmitted to third-party models", "Enforce strict PII masking before text hits external LLM APIs."]
                     ]
                 ),
@@ -324,26 +326,26 @@ Return ONLY valid JSON matching this schema:
                     heading="5. Proposed Success Metrics & Exit Criteria",
                     level=1,
                     body=(
-                        "The pilot's success will be judged objectively using proposed performance thresholds "
-                        "before requesting any capital allocation for a broader rollout."
+                        "The pilot's success will be judged objectively using proposed performance targets "
+                        "(not yet measured results) before requesting any capital allocation for a broader rollout."
                     ),
                     bullet_points=[
-                        "Proposed Deflection Target: Minimum 25% reduction in tier-1 tickets escalated to agents.",
-                        "Customer Sentiment: >= 80% satisfaction score on pilot feedback ratings.",
-                        "Agent Hours Saved: Minimum 10 hours per week recovered for complex customer escalations.",
-                        "Error Rate: < 2% unassisted queries requiring manual manager correction."
+                        "Proposed Target: Deflection Rate — Target 20–30% tier-1 inquiry deflection during pilot phase.",
+                        "Proposed Target: Customer CSAT — Target >= 80% satisfaction score on pilot feedback ratings.",
+                        "Proposed Target: Agent Capacity — Aim to recover 8–12 hours per week for tier-2 escalations.",
+                        "Proposed Target: Escalation Accuracy — Keep bot misclassification below 5%."
                     ]
                 )
             ]
             assumptions = intake.assumptions or [
-                "No vendor contract has been signed; vendor selection will occur during pilot exploration.",
-                "Costs referenced in financial planning are illustrative budget caps, not confirmed vendor quotes.",
+                "No vendor contract has been signed; vendor selection and formal pricing quotes will occur during pilot exploration.",
+                "Financial commitments are deferred until vendor quotations and free trials are evaluated.",
                 "Existing support ticketing system supports basic third-party webhook integrations."
             ]
             next_steps = [
-                "Approve proposed budget cap ($200) for pilot experimentation.",
-                "Review shortlist of 3 self-service AI customer support platforms offering 14-day trials.",
-                "Author pilot charter and assign Support Team Lead as testing lead."
+                "Issue requests for quotation (RFQs) to shortlisted AI support vendors with trial access.",
+                "Define qualitative budget boundaries and mandatory hard-spend threshold policies.",
+                "Author pilot charter and assign Support Team Lead as operational testing lead."
             ]
 
         return DocumentContent(
@@ -356,8 +358,10 @@ Return ONLY valid JSON matching this schema:
             next_steps=next_steps
         )
 
-    def validate_document_quality(self, doc_content: DocumentContent) -> QualityReview:
-        """Tool 3: Reflection & self-check to evaluate completeness, consistency, and structure."""
+    def validate_document_quality(
+        self, doc_content: DocumentContent, intake: Optional[DocumentIntake] = None
+    ) -> QualityReview:
+        """Tool 3: Reflection & self-check to evaluate completeness, consistency, grounding, and constraints."""
         findings = []
         score = 1.0
 
@@ -390,7 +394,15 @@ Return ONLY valid JSON matching this schema:
         # Check for empty sections or duplicated headings
         seen_headings = set()
         has_table = False
+        full_text_corpus = (doc_content.title or "") + " " + (doc_content.executive_summary or "")
         for sec in doc_content.sections:
+            full_text_corpus += " " + sec.heading + " " + sec.body
+            if sec.bullet_points:
+                full_text_corpus += " " + " ".join(sec.bullet_points)
+            if sec.table_rows:
+                for row in sec.table_rows:
+                    full_text_corpus += " " + " ".join(row)
+
             if not sec.heading or not sec.body:
                 findings.append(QualityFinding(
                     severity=FindingSeverity.ERROR,
@@ -410,6 +422,9 @@ Return ONLY valid JSON matching this schema:
             if sec.table_headers and sec.table_rows and len(sec.table_rows) > 0:
                 has_table = True
 
+        if doc_content.next_steps:
+            full_text_corpus += " " + " ".join(doc_content.next_steps)
+
         if not has_table:
             findings.append(QualityFinding(
                 severity=FindingSeverity.WARNING,
@@ -426,6 +441,51 @@ Return ONLY valid JSON matching this schema:
                 corrective_action="List clear assumptions for missing requirements."
             ))
             score -= 0.1
+
+        # Check for grounding against constraints & forbidden fabricated costs
+        check_against = ""
+        if intake:
+            check_against = (intake.objective + " " + " ".join(intake.constraints)).lower()
+
+        forbids_exact_costs = (
+            "not invent exact costs" in check_against
+            or "no exact costs" in check_against
+            or "without inventing exact costs" in check_against
+            or "do not invent exact costs" in check_against
+            or "limited budget" in check_against
+        )
+
+        if forbids_exact_costs:
+            # Look for exact dollar figures like $100, $200, $500, etc. that are NOT explicitly labeled hypothetical
+            dollar_matches = re.findall(r"\$\s*\d+[\d,]*", full_text_corpus)
+            if dollar_matches:
+                unlabeled_dollars = []
+                for m in dollar_matches:
+                    if "hypothetical" not in full_text_corpus.lower() and "illustrative" not in full_text_corpus.lower():
+                        unlabeled_dollars.append(m)
+                if unlabeled_dollars:
+                    findings.append(QualityFinding(
+                        severity=FindingSeverity.ERROR,
+                        message=f"Document contains unsupported exact dollar figures ({', '.join(unlabeled_dollars[:3])}) when request forbids invented costs.",
+                        corrective_action="Replace invented exact costs with qualitative budget guardrails and RFQ recommendations."
+                    ))
+                    score -= 0.35
+
+        # Verify proposed metrics are framed as proposed targets rather than measured historical facts
+        if "proposal" in (intake.document_type.lower() if intake else doc_content.document_type.lower()):
+            has_metric_label = False
+            for sec in doc_content.sections:
+                if "metric" in sec.heading.lower() or "kpi" in sec.heading.lower():
+                    combined_metric_text = (sec.body + " " + " ".join(sec.bullet_points or [])).lower()
+                    if "propos" in combined_metric_text or "target" in combined_metric_text or "estimat" in combined_metric_text:
+                        has_metric_label = True
+            if not has_metric_label:
+                findings.append(QualityFinding(
+                    severity=FindingSeverity.WARNING,
+                    message="Metrics in proposal should be explicitly identified as proposed targets or exit criteria, not confirmed results.",
+                    corrective_action="Prefix success metrics with 'Proposed Target:' to clearly differentiate from measured facts."
+                ))
+                score -= 0.1
 
         passed = score >= 0.7 and not any(f.severity == FindingSeverity.ERROR for f in findings)
         return QualityReview(
