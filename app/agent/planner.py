@@ -24,7 +24,7 @@ Determine:
 2. Document type (e.g., "Project Plan", "Business Proposal", "Technical Design Document", "Meeting Minutes", "Standard Operating Procedure", "Business Report").
 3. Target audience.
 4. Specific constraints mentioned.
-5. Explicit assumptions for any missing details (e.g. budget, timeframe, vendor status).
+5. Explicit assumptions for any missing details. IMPORTANT: If the request says not to invent exact costs or if vendor/pricing is unconfirmed, do NOT state that assumptions about budget ranges will be made. Instead explicitly include: "No exact budget or vendor pricing has been assumed. Implementation timelines are planning estimates and must be validated against vendor capabilities, internal resources, and pilot requirements."
 
 Return ONLY valid JSON matching this schema:
 {{
@@ -48,6 +48,18 @@ Return ONLY valid JSON matching this schema:
                 if len(raw_obj) > 60:
                     raw_obj = raw_obj[:57] + "..."
             data["objective"] = raw_obj
+
+            # Sanitize assumptions against forbidden "budget ranges" phrasing
+            clean_assumptions = []
+            for a in data.get("assumptions", []):
+                if "budget range" in a.lower():
+                    clean_assumptions.append(
+                        "No exact budget or vendor pricing has been assumed. Implementation timelines are planning "
+                        "estimates and must be validated against vendor capabilities, internal resources, and pilot requirements."
+                    )
+                else:
+                    clean_assumptions.append(a)
+            data["assumptions"] = clean_assumptions
             return DocumentIntake(**data)
 
         # Robust heuristic fallback parser
@@ -56,6 +68,7 @@ Return ONLY valid JSON matching this schema:
             doc_type = "Business Proposal"
             audience = "Executive Leadership / Budget Approvers"
             assumptions = [
+                "No exact budget or vendor pricing has been assumed. Implementation timelines are planning estimates and must be validated against vendor capabilities, internal resources, and pilot requirements.",
                 "Budget is limited and requires a low-risk phased commitment.",
                 "No specific AI vendor has been pre-selected; comparison is required.",
                 "Success metrics and milestones are illustrative proposals pending pilot sign-off."

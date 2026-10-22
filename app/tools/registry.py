@@ -143,8 +143,8 @@ GUIDELINES:
 1. NEVER invent confirmed prices, specific dollar budgets, vendor agreements, or stakeholder decisions. If unknown, treat as proposed, use qualitative budget guardrails (e.g. pay-as-you-go or capped tiers), and recommend obtaining vendor quotes.
 2. If numerical examples are genuinely useful, clearly label them as hypothetical illustrations and do NOT present them as company-specific commitments.
 3. For Project Plans: Include milestone tables, risk tables, roles, and measurable KPIs.
-4. For Proposals: Provide an in-depth comparison table between options (e.g., Pilot vs Full Rollout), risks, and proposed metrics. Clearly label suggested targets as proposed targets, not measured results.
-5. Output rich, professional text with clear bullet points and structured tables.
+4. For Proposals: Provide an in-depth comparison table between options (e.g., Pilot vs Full Rollout), risks, and proposed metrics. Clearly label suggested targets as proposed targets, not measured results, and include an explicit disclaimer in the section body stating: "The pilot's success will be evaluated against illustrative proposed targets (not measured results, verified benchmarks, or guaranteed outcomes). Leadership must review, baseline, and formally approve or adjust these targets after reviewing initial pilot observations."
+5. Assumptions: In the assumptions list, if no pricing is confirmed, explicitly include: "No exact budget or vendor pricing has been assumed. Implementation timelines are planning estimates and must be validated against vendor capabilities, internal resources, and pilot requirements." Do NOT invent or assume budget ranges.
 
 Return ONLY valid JSON matching this schema:
 {{
@@ -176,7 +176,28 @@ Return ONLY valid JSON matching this schema:
         data = self.llm.extract_json(response_text) if response_text else None
         if data and "sections" in data:
             try:
-                return DocumentContent(**data)
+                content = DocumentContent(**data)
+                # Ensure the required assumption is present if proposal has unconfirmed pricing
+                if "proposal" in doc_type_lower:
+                    sanitized_assumptions = []
+                    found_exact_wording = False
+                    for a in content.assumptions:
+                        if "budget range" in a.lower():
+                            sanitized_assumptions.append(
+                                "No exact budget or vendor pricing has been assumed. Implementation timelines are planning "
+                                "estimates and must be validated against vendor capabilities, internal resources, and pilot requirements."
+                            )
+                            found_exact_wording = True
+                        else:
+                            sanitized_assumptions.append(a)
+                    if not found_exact_wording and not any("no exact budget or vendor pricing" in a.lower() for a in sanitized_assumptions):
+                        sanitized_assumptions.insert(
+                            0,
+                            "No exact budget or vendor pricing has been assumed. Implementation timelines are planning "
+                            "estimates and must be validated against vendor capabilities, internal resources, and pilot requirements."
+                        )
+                    content.assumptions = sanitized_assumptions
+                return content
             except Exception as e:
                 logger.warning(f"Failed to parse LLM DocumentContent: {e}")
 
@@ -357,7 +378,8 @@ Return ONLY valid JSON matching this schema:
                     ]
                 )
             ]
-            assumptions = intake.assumptions or [
+            assumptions = [
+                "No exact budget or vendor pricing has been assumed. Implementation timelines are planning estimates and must be validated against vendor capabilities, internal resources, and pilot requirements.",
                 "No vendor contract has been signed; vendor selection and formal pricing quotes will occur during pilot exploration.",
                 "Financial commitments are deferred until vendor quotations and free trials are evaluated.",
                 "Existing support ticketing system supports basic third-party webhook integrations."

@@ -166,4 +166,30 @@ def test_quality_review_flags_missing_metric_disclaimer():
         for f in review.findings
     )
 
+def test_assumptions_prohibit_invented_budget_ranges():
+    """Test that generated proposal assumptions explicitly declare no exact budget or vendor pricing has been assumed."""
+    tools = ToolRegistry(LLMClient(api_key=""))
+    intake = DocumentIntake(
+        objective="Prepare a proposal for improving customer support without inventing exact costs",
+        document_type="Business Proposal",
+        target_audience="Executive Leadership",
+        constraints=["Resource constraints: Small team with limited budget", "Do not invent exact costs"],
+        assumptions=["No vendor pre-selected"]
+    )
+    doc_content = tools._generate_fallback_content(
+        intake=intake,
+        outline={"title": "Strategic AI Integration for Customer Support", "subtitle": "Pilot Evaluation"}
+    )
+    # Verify the exact required assumption exists
+    required_assumption = (
+        "No exact budget or vendor pricing has been assumed. Implementation timelines are planning "
+        "estimates and must be validated against vendor capabilities, internal resources, and pilot requirements."
+    )
+    assert any(required_assumption in a for a in doc_content.assumptions)
+    
+    # Ensure no wording implies that an invented budget range is acceptable
+    for a in doc_content.assumptions:
+        assert "budget ranges" not in a.lower()
+
+
 
