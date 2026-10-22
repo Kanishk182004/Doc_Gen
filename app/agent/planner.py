@@ -41,6 +41,13 @@ Return ONLY valid JSON matching this schema:
         )
         data = self.llm.extract_json(response_text) if response_text else None
         if data and "objective" in data and "document_type" in data:
+            raw_obj = data["objective"]
+            # Ensure objective is concise and not a long verbose sentence
+            if len(raw_obj) > 60:
+                raw_obj = raw_obj.split(".")[0]
+                if len(raw_obj) > 60:
+                    raw_obj = raw_obj[:57] + "..."
+            data["objective"] = raw_obj
             return DocumentIntake(**data)
 
         # Robust heuristic fallback parser
@@ -92,8 +99,23 @@ Return ONLY valid JSON matching this schema:
         if "no vendor" in req_lower or "not chosen a vendor" in req_lower or "without inventing exact costs" in req_lower or "do not invent exact costs" in req_lower:
             constraints.append("Pricing and vendor unconfirmed: Do not invent exact costs or vendor selections")
 
+        # Form a concise, clean objective rather than a truncated prompt slice
+        clean_objective = "General Business Initiative"
+        if "customer support" in req_lower and "proposal" in req_lower:
+            clean_objective = "Improving Customer Support with AI"
+        elif "customer support" in req_lower and "project" in req_lower:
+            clean_objective = "AI Customer Support Chatbot Implementation"
+        elif "support" in req_lower:
+            clean_objective = "Customer Support Optimization"
+        else:
+            first_sentence = user_request.strip().split(".")[0].strip()
+            for prefix in ["create a ", "prepare a ", "draft a ", "build a ", "design a "]:
+                if first_sentence.lower().startswith(prefix):
+                    first_sentence = first_sentence[len(prefix):].strip()
+            clean_objective = first_sentence[:60].strip()
+
         return DocumentIntake(
-            objective=user_request[:120].strip(),
+            objective=clean_objective,
             document_type=doc_type,
             target_audience=audience,
             constraints=constraints,

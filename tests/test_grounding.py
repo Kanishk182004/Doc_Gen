@@ -76,3 +76,94 @@ def test_quality_review_passes_qualitative_guardrails():
             for r in s.table_rows:
                 full_text += " " + " ".join(r)
     assert "$" not in full_text
+
+def test_quality_review_detects_truncated_title():
+    """Test that review flags truncated or cut-off document titles."""
+    tools = ToolRegistry(LLMClient(api_key=""))
+    intake = DocumentIntake(
+        objective="Improving Customer Support with AI",
+        document_type="Business Proposal",
+        target_audience="Leadership",
+        constraints=[],
+        assumptions=[]
+    )
+    doc_content = DocumentContent(
+        title="Business Proposal: To propose a strategy for enhancing customer suppo",
+        document_type="Business Proposal",
+        executive_summary="This executive summary covers our strategy to pilot automated AI tools.",
+        sections=[
+            SectionContent(
+                heading="1. Problem Statement",
+                level=1,
+                body="Support team is small.",
+                bullet_points=["Inquiry volume high"]
+            ),
+            SectionContent(
+                heading="2. Options Matrix",
+                level=1,
+                body="Comparison between options.",
+                table_headers=["Option", "Risk"],
+                table_rows=[["Pilot", "Low"]]
+            ),
+            SectionContent(
+                heading="3. Risk & Mitigation",
+                level=1,
+                body="Mitigation plan.",
+                bullet_points=["Caps"]
+            )
+        ],
+        assumptions=["Budget is limited"],
+        next_steps=["Pilot"]
+    )
+    review = tools.validate_document_quality(doc_content=doc_content, intake=intake)
+    assert review.passed is False
+    assert any(
+        f.severity == FindingSeverity.ERROR and "truncated" in f.message.lower()
+        for f in review.findings
+    )
+
+def test_quality_review_flags_missing_metric_disclaimer():
+    """Test that proposals without metric baseline disclaimers receive a warning."""
+    tools = ToolRegistry(LLMClient(api_key=""))
+    intake = DocumentIntake(
+        objective="Improving Customer Support with AI",
+        document_type="Business Proposal",
+        target_audience="Leadership",
+        constraints=[],
+        assumptions=[]
+    )
+    doc_content = DocumentContent(
+        title="Business Proposal: Improving Customer Support with AI",
+        document_type="Business Proposal",
+        executive_summary="This executive summary covers our strategy to pilot automated AI tools.",
+        sections=[
+            SectionContent(
+                heading="1. Problem Statement",
+                level=1,
+                body="Support team is small.",
+                bullet_points=["Inquiry volume high"]
+            ),
+            SectionContent(
+                heading="2. Options Matrix",
+                level=1,
+                body="Comparison between options.",
+                table_headers=["Option", "Risk"],
+                table_rows=[["Pilot", "Low"]]
+            ),
+            SectionContent(
+                heading="3. Metrics and KPIs",
+                level=1,
+                body="Proposed target deflection rate: 25%.",  # Missing illustrative baseline disclaimer
+                bullet_points=["Target: CSAT > 85%"]
+            )
+        ],
+        assumptions=["Budget is limited"],
+        next_steps=["Pilot"]
+    )
+    review = tools.validate_document_quality(doc_content=doc_content, intake=intake)
+    assert any(
+        "disclaimer" in f.message.lower() or "illustrative" in f.message.lower()
+        for f in review.findings
+    )
+
+

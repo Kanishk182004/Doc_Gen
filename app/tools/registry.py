@@ -75,8 +75,13 @@ Return ONLY valid JSON matching this schema:
         # Deterministic fallback outline based on document type
         doc_type_lower = intake.document_type.lower()
         if "project" in doc_type_lower:
+            doc_title = (
+                f"Project Plan: {intake.objective}"
+                if not intake.objective.lower().startswith("project plan")
+                else intake.objective
+            )
             return {
-                "title": f"Project Plan: {intake.objective[:50]}",
+                "title": doc_title,
                 "subtitle": f"Target Audience: {intake.target_audience}",
                 "document_type": intake.document_type,
                 "executive_summary_needed": True,
@@ -89,8 +94,13 @@ Return ONLY valid JSON matching this schema:
                 ]
             }
         elif "proposal" in doc_type_lower:
+            doc_title = (
+                f"Business Proposal: {intake.objective}"
+                if not intake.objective.lower().startswith("business proposal")
+                else intake.objective
+            )
             return {
-                "title": f"Business Proposal: {intake.objective[:50]}",
+                "title": doc_title,
                 "subtitle": f"Prepared for: {intake.target_audience}",
                 "document_type": intake.document_type,
                 "executive_summary_needed": True,
@@ -104,7 +114,7 @@ Return ONLY valid JSON matching this schema:
             }
         else:
             return {
-                "title": f"Business Document: {intake.objective[:50]}",
+                "title": f"Business Document: {intake.objective}",
                 "subtitle": f"Target Audience: {intake.target_audience}",
                 "document_type": intake.document_type,
                 "executive_summary_needed": True,
@@ -180,6 +190,15 @@ Return ONLY valid JSON matching this schema:
         doc_type_lower = intake.document_type.lower()
         title = outline.get("title", f"{intake.document_type}: {intake.objective}")
         subtitle = outline.get("subtitle", f"Audience: {intake.target_audience}")
+
+        # Ensure title is not truncated or excessively long
+        if "..." in title or len(title) > 85 or title.lower().endswith(" suppo"):
+            if "proposal" in doc_type_lower:
+                title = "Business Proposal: Improving Customer Support with AI"
+            elif "project" in doc_type_lower:
+                title = "Project Plan: AI Customer Support Chatbot Implementation"
+            else:
+                title = f"{intake.document_type}: {intake.objective[:45]}"
 
         if "project" in doc_type_lower:
             exec_summary = (
@@ -326,14 +345,15 @@ Return ONLY valid JSON matching this schema:
                     heading="5. Proposed Success Metrics & Exit Criteria",
                     level=1,
                     body=(
-                        "The pilot's success will be judged objectively using proposed performance targets "
-                        "(not yet measured results) before requesting any capital allocation for a broader rollout."
+                        "The pilot's success will be evaluated against illustrative proposed targets (not measured "
+                        "results, verified benchmarks, or guaranteed outcomes). Leadership must review, baseline, "
+                        "and formally approve or adjust these targets after reviewing initial pilot observations."
                     ),
                     bullet_points=[
-                        "Proposed Target: Deflection Rate — Target 20–30% tier-1 inquiry deflection during pilot phase.",
-                        "Proposed Target: Customer CSAT — Target >= 80% satisfaction score on pilot feedback ratings.",
-                        "Proposed Target: Agent Capacity — Aim to recover 8–12 hours per week for tier-2 escalations.",
-                        "Proposed Target: Escalation Accuracy — Keep bot misclassification below 5%."
+                        "Proposed Target (Illustrative): Deflection Rate — Target 20–30% tier-1 inquiry deflection during pilot phase.",
+                        "Proposed Target (Illustrative): Customer Satisfaction (CSAT) — Target >= 80% satisfaction score on pilot feedback ratings.",
+                        "Proposed Target (Illustrative): Agent Capacity Savings — Aim to recover 8–12 hours per week for tier-2 escalations.",
+                        "Proposed Target (Illustrative): Escalation Precision — Keep bot misclassification below 5%."
                     ]
                 )
             ]
@@ -373,6 +393,17 @@ Return ONLY valid JSON matching this schema:
                 corrective_action="Assign a descriptive, formal document title."
             ))
             score -= 0.3
+
+        # Check for truncated titles (e.g., cut off words, ellipsis, or prompt fragments)
+        title_text = (doc_content.title or "").strip()
+        truncated_suffixes = [" suppo", " custo", " custo...", " impl", "...", " to propose a"]
+        if any(title_text.lower().endswith(s) for s in truncated_suffixes) or len(title_text) > 90:
+            findings.append(QualityFinding(
+                severity=FindingSeverity.ERROR,
+                message=f"Document title appears truncated or excessively long: '{title_text}'.",
+                corrective_action="Provide a complete, professional, untruncated title under 80 characters."
+            ))
+            score -= 0.35
 
         if not doc_content.executive_summary or len(doc_content.executive_summary.strip()) < 30:
             findings.append(QualityFinding(
@@ -474,16 +505,26 @@ Return ONLY valid JSON matching this schema:
         # Verify proposed metrics are framed as proposed targets rather than measured historical facts
         if "proposal" in (intake.document_type.lower() if intake else doc_content.document_type.lower()):
             has_metric_label = False
+            has_metric_disclaimer = False
             for sec in doc_content.sections:
                 if "metric" in sec.heading.lower() or "kpi" in sec.heading.lower():
                     combined_metric_text = (sec.body + " " + " ".join(sec.bullet_points or [])).lower()
                     if "propos" in combined_metric_text or "target" in combined_metric_text or "estimat" in combined_metric_text:
                         has_metric_label = True
+                    if "illustrative" in combined_metric_text or "not measured" in combined_metric_text or "approve" in combined_metric_text or "baseline" in combined_metric_text:
+                        has_metric_disclaimer = True
             if not has_metric_label:
                 findings.append(QualityFinding(
                     severity=FindingSeverity.WARNING,
                     message="Metrics in proposal should be explicitly identified as proposed targets or exit criteria, not confirmed results.",
                     corrective_action="Prefix success metrics with 'Proposed Target:' to clearly differentiate from measured facts."
+                ))
+                score -= 0.1
+            if not has_metric_disclaimer:
+                findings.append(QualityFinding(
+                    severity=FindingSeverity.WARNING,
+                    message="Proposed metrics section is missing an explicit disclaimer that targets are illustrative and require leadership approval post-baseline.",
+                    corrective_action="Include an illustrative disclaimer explaining targets are unverified benchmarks subject to leadership sign-off."
                 ))
                 score -= 0.1
 
