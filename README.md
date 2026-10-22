@@ -208,3 +208,4 @@ Downloads the generated `.docx` document. Protected against path traversal attac
 - Asynchronous Celery/Redis background task queue for long-running batch documents.
 - User-supplied `.docx` styling templates with custom organizational themes and branding.
 - Multi-modal support for inserting dynamic chart images (Matplotlib/Plotly) into document sections.
+

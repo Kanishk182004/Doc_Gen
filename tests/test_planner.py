@@ -54,3 +54,4 @@ def test_planner_unknown_dependency():
     ]
     with pytest.raises(ValueError, match="references undefined dependency"):
         DynamicPlanner.validate_plan_dependencies(ExecutionPlan(tasks=tasks))
+

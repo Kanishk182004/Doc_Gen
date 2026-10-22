@@ -112,3 +112,4 @@ class ExecutionOrchestrator:
                 raise RuntimeError(f"Task {task.id} execution failed: {e}")
 
         return plan, context["doc_content"], context["quality_review"], context["docx_filename"]
+

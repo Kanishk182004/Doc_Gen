@@ -244,3 +244,4 @@ Return ONLY valid JSON:
 
         if visited_count != len(plan.tasks):
             raise ValueError("Circular dependency detected in execution plan.")
+

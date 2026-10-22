@@ -75,3 +75,4 @@ class AgentResponse(BaseModel):
     llm_mode: str  # "groq" or "deterministic_fallback"
     document_url: str
     message: str
+

@@ -4,7 +4,7 @@ import os
 
 class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "qwen/qwen3.8-27b"
     GENERATED_DOCS_DIR: Path = Path("generated_docs")
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000
@@ -19,3 +19,4 @@ class Settings(BaseSettings):
 settings = Settings()
 # Ensure generated_docs dir exists
 settings.GENERATED_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+

@@ -50,3 +50,4 @@ def test_recovery_when_llm_returns_malformed_json():
             assert data["status"] == "completed"
             assert data["document_type"] == "Business Proposal"
             assert data["quality_review"]["passed"] is True
+

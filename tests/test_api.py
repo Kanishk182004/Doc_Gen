@@ -64,3 +64,4 @@ def test_document_download_path_traversal_prevention():
     
     response2 = client.get("/documents/non_existent.docx")
     assert response2.status_code == 404
+

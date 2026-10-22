@@ -172,3 +172,4 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(output_path))
     return output_path
+

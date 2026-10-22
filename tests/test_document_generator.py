@@ -36,3 +36,4 @@ def test_create_docx_file(tmp_path: Path):
     assert any("Test Document Title" in h for h in headings)
     assert any("1. Section Heading" in h for h in headings)
     assert len(doc.tables) >= 2  # Metadata table + data table
+

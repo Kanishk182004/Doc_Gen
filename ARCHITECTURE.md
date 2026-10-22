@@ -85,3 +85,4 @@ flowchart TD
 ### Single-Agent Orchestration vs. Multi-Agent Frameworks
 - **Tradeoff**: Frameworks like CrewAI or LangGraph add complex agent-to-agent message passing and heavier dependencies.
 - **Decision**: A lightweight single-agent orchestrator with explicit tools was selected to avoid framework bloat, guarantee sub-second deterministic execution, and ensure complete predictability for technical evaluation.
+
