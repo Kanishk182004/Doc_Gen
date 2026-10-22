@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+env/
+generated_docs/*.docx
+!generated_docs/.gitkeep
+.pytest_cache/

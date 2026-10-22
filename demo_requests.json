@@ -1,0 +1,14 @@
+{
+  "test_case_1_standard": {
+    "description": "Standard business request for an 8-week AI customer support chatbot project plan",
+    "payload": {
+      "request": "Create a project plan for launching an AI-powered customer support chatbot for a 50-person e-commerce company within 8 weeks. Include phases, milestones, risks, owners, and success metrics."
+    }
+  },
+  "test_case_2_complex": {
+    "description": "Complex, ambiguous request with limited budget, no vendor chosen, requiring explicit assumptions and pilot comparison",
+    "payload": {
+      "request": "Prepare a proposal for improving our customer support. We have a small team, a limited budget, and want to use AI, but we have not chosen a vendor or defined success metrics. Make reasonable assumptions, compare a lightweight pilot with a full rollout, identify risks, and recommend next steps without inventing exact costs."
+    }
+  }
+}
