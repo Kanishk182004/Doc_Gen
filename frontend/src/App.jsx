@@ -130,10 +130,33 @@ const PIPELINE_STAGES = [
 
 export default function App() {
   const [requestText, setRequestText] = useState(SAMPLE_TEMPLATES[0].text);
-  const [selectedProvider, setSelectedProvider] = useState("groq");
-  const [userApiKey, setUserApiKey] = useState("");
-  const [selectedModel, setSelectedModel] = useState("openai/gpt-oss-120b");
+  const [selectedProvider, setSelectedProvider] = useState(() => {
+    return localStorage.getItem('scribeai_selected_provider') || "groq";
+  });
+  const [userApiKey, setUserApiKey] = useState(() => {
+    return localStorage.getItem('scribeai_user_api_key') || "";
+  });
+  const [selectedModel, setSelectedModel] = useState(() => {
+    return localStorage.getItem('scribeai_selected_model') || "openai/gpt-oss-120b";
+  });
   const [showConfig, setShowConfig] = useState(false);
+
+  // Persist user LLM preferences in localStorage
+  useEffect(() => {
+    localStorage.setItem('scribeai_selected_provider', selectedProvider);
+  }, [selectedProvider]);
+
+  useEffect(() => {
+    if (userApiKey) {
+      localStorage.setItem('scribeai_user_api_key', userApiKey);
+    } else {
+      localStorage.removeItem('scribeai_user_api_key');
+    }
+  }, [userApiKey]);
+
+  useEffect(() => {
+    localStorage.setItem('scribeai_selected_model', selectedModel);
+  }, [selectedModel]);
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentStageIdx, setCurrentStageIdx] = useState(0);
@@ -815,9 +838,14 @@ export default function App() {
 
                 {/* API Key Input */}
                 <div>
-                  <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '6px', fontWeight: '600' }}>
-                    API Key for {currentProviderObj.name} (Optional if set in .env):
-                  </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>
+                      API Key for {currentProviderObj.name}:
+                    </label>
+                    <span style={{ fontSize: '10px', color: userApiKey ? '#00f5a0' : '#64748b' }}>
+                      {userApiKey ? '✓ Custom Key Saved' : 'Optional (Fallback active)'}
+                    </span>
+                  </div>
                   <input
                     type="password"
                     value={userApiKey}
