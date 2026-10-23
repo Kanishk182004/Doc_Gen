@@ -6,6 +6,43 @@ from app.services.llm_client import LLMClient
 
 logger = logging.getLogger("autonomous_agent.planner")
 
+def clean_title_phrase(text: str, max_chars: int = 70) -> str:
+    """Produces clean, professional, untruncated title phrases without dangling words."""
+    # 1. Strip conversational/prompt prefixes
+    clean = re.sub(
+        r'^(?:to\s+(?:create|propose|draft|design|develop|build|prepare|author)\s+(?:a|an)?\s*|to\s+|create\s+(?:a|an)?\s*|propose\s+(?:a|an)?\s*|draft\s+(?:a|an)?\s*|design\s+(?:a|an)?\s*|prepare\s+(?:a|an)?\s*)',
+        '',
+        text.strip(),
+        flags=re.IGNORECASE
+    ).strip()
+    
+    # 2. Accumulate whole words up to max_chars
+    words = clean.split()
+    accumulated = []
+    current_len = 0
+    dangling = {
+        'to', 'for', 'with', 'and', 'by', 'the', 'a', 'an', 'of', 'in', 'on', 'from',
+        'at', 'into', 'as', 'about', 'over', 'under', 'through', 'using', 'launch'
+    }
+    for w in words:
+        if current_len + len(w) + (1 if accumulated else 0) <= max_chars:
+            accumulated.append(w)
+            current_len += len(w) + (1 if accumulated else 0)
+        else:
+            break
+            
+    # 3. Strip any dangling prepositions/articles or cut-off words at the end
+    while accumulated and (
+        accumulated[-1].lower() in dangling
+        or accumulated[-1].endswith('-')
+        or accumulated[-1].endswith('...')
+        or len(accumulated[-1]) <= 2
+    ):
+        accumulated.pop()
+        
+    result = ' '.join(accumulated).strip()
+    return result if result else clean[:max_chars].strip()
+
 class DynamicPlanner:
     """Stage 1 & 2: Understand natural language, form assumptions, and synthesize a dynamic execution plan."""
 
@@ -42,11 +79,9 @@ Return ONLY valid JSON matching this schema:
         data = self.llm.extract_json(response_text) if response_text else None
         if data and "objective" in data and "document_type" in data:
             raw_obj = data["objective"]
-            # Ensure objective is concise and not a long verbose sentence
-            if len(raw_obj) > 60:
-                raw_obj = raw_obj.split(".")[0]
-                if len(raw_obj) > 60:
-                    raw_obj = raw_obj[:57] + "..."
+            # Ensure objective is cleanly phrased without mid-word cuts or trailing dangling words
+            if len(raw_obj) > 65:
+                raw_obj = clean_title_phrase(raw_obj, max_chars=65)
             data["objective"] = raw_obj
 
             # Sanitize assumptions against forbidden "budget ranges" phrasing
@@ -116,17 +151,8 @@ Return ONLY valid JSON matching this schema:
             assumptions.append("Role assignments follow standard RACI governance.")
 
         # 4. Clean Dynamic Title Generation
-        clean_prompt = user_request.strip().split(".")[0].strip()
-        for prefix in ["create a ", "create an ", "prepare a ", "prepare an ", "draft a ", "draft an ", "build a ", "build an ", "design a ", "design an "]:
-            if clean_prompt.lower().startswith(prefix):
-                clean_prompt = clean_prompt[len(prefix):].strip()
-                break
-        
-        # Keep title concise and well-formed
-        if len(clean_prompt) > 65:
-            clean_title = f"{doc_type}: {clean_prompt[:60].strip()}..."
-        else:
-            clean_title = f"{doc_type}: {clean_prompt.capitalize()}"
+        clean_phrase = clean_title_phrase(user_request, max_chars=60)
+        clean_title = f"{doc_type}: {clean_phrase.capitalize()}"
 
         return DocumentIntake(
             objective=clean_title,

@@ -33,11 +33,11 @@ const PROVIDERS = [
     id: "groq",
     name: "Groq",
     desc: "Ultra-fast LPU inference (Free tier supported)",
-    defaultModel: "qwen/qwen3.8-27b",
+    defaultModel: "openai/gpt-oss-120b",
     models: [
-      { id: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B (Recommended)" },
-      { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B Versatile" },
-      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant" }
+      { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B (High Capacity / 8k TPM - Recommended)" },
+      { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B (Fast / 8k TPM)" },
+      { id: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B (1k OTPM)" }
     ],
     placeholder: "gsk_..."
   },
@@ -122,7 +122,7 @@ export default function App() {
   const [requestText, setRequestText] = useState(SAMPLE_TEMPLATES[0].text);
   const [selectedProvider, setSelectedProvider] = useState("groq");
   const [userApiKey, setUserApiKey] = useState("");
-  const [selectedModel, setSelectedModel] = useState("qwen/qwen3.8-27b");
+  const [selectedModel, setSelectedModel] = useState("openai/gpt-oss-120b");
   const [showConfig, setShowConfig] = useState(false);
 
   const [isGenerating, setIsGenerating] = useState(false);

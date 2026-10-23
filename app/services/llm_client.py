@@ -11,7 +11,7 @@ logger = logging.getLogger("autonomous_agent.llm")
 T = TypeVar("T", bound=BaseModel)
 
 PROVIDER_DEFAULT_MODELS = {
-    "groq": "qwen/qwen3.8-27b",
+    "groq": "openai/gpt-oss-120b",
     "openai": "gpt-4o-mini",
     "anthropic": "claude-3-5-haiku-20241022",
     "gemini": "gemini-1.5-flash"

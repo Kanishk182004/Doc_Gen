@@ -174,8 +174,23 @@ Return ONLY valid JSON matching this schema:
             temperature=0.25
         )
         data = self.llm.extract_json(response_text) if response_text else None
+        doc_type_lower = intake.document_type.lower()
         if data and "sections" in data:
             try:
+                # Ensure fields are present before instantiating DocumentContent
+                if "title" not in data or not data["title"]:
+                    data["title"] = outline.get("title", f"{intake.document_type}: {intake.objective}")
+                if "subtitle" not in data or not data["subtitle"]:
+                    data["subtitle"] = outline.get("subtitle", f"Target Audience: {intake.target_audience}")
+                if "document_type" not in data or not data["document_type"]:
+                    data["document_type"] = intake.document_type
+                if "executive_summary" not in data or not data["executive_summary"]:
+                    data["executive_summary"] = f"Executive briefing and execution summary for {intake.objective}."
+                if "assumptions" not in data or not data["assumptions"]:
+                    data["assumptions"] = intake.assumptions or ["All implementation details subject to phase-1 stakeholder alignment."]
+                if "next_steps" not in data or not data["next_steps"]:
+                    data["next_steps"] = ["Convene project kickoff meeting.", "Finalize stakeholder ownership matrix.", "Commence Phase 1 deliverables."]
+
                 content = DocumentContent(**data)
                 # Ensure the required assumption is present if proposal has unconfirmed pricing
                 if "proposal" in doc_type_lower:
@@ -213,13 +228,35 @@ Return ONLY valid JSON matching this schema:
         subtitle = outline.get("subtitle", f"Audience: {intake.target_audience}")
 
         # Ensure title is not truncated or excessively long
-        dangling_prepositions = ["to", "for", "with", "and", "by", "the", "a", "an", "of", "in", "on", "from"]
+        dangling_prepositions = ["to", "for", "with", "and", "by", "the", "a", "an", "of", "in", "on", "from", "at", "as", "into"]
         if "..." in title or len(title) > 85 or any(title.lower().endswith(f" {w}") for w in dangling_prepositions):
             clean_obj = intake.objective.split(":")[-1].strip() if ":" in intake.objective else intake.objective
-            title = f"{intake.document_type}: {clean_obj[:55].strip()}"
+            # Cleanly strip conversational prefixes and prevent mid-word truncations
+            clean_clean = re.sub(r'^(?:to\s+|create\s+(?:a|an)?\s*|propose\s+(?:a|an)?\s*|draft\s+(?:a|an)?\s*)', '', clean_obj, flags=re.IGNORECASE).strip()
+            words = clean_clean.split()
+            accum = []
+            curr = 0
+            for w in words:
+                if curr + len(w) + (1 if accum else 0) <= 55:
+                    accum.append(w)
+                    curr += len(w) + (1 if accum else 0)
+                else:
+                    break
+            while accum and accum[-1].lower() in dangling_prepositions:
+                accum.pop()
+            phrase = ' '.join(accum).strip() if accum else clean_clean[:50].strip()
+            title = f"{intake.document_type}: {phrase.capitalize()}"
 
         # Fallback Generator: Dynamically adapt content to the actual intake objective and genre
         subject_phrase = intake.objective.replace(f"{intake.document_type}:", "").strip()
+        # Clean subject_phrase so narrative sentences don't read "roadmap for To create a..."
+        subject_phrase = re.sub(r'^(?:to\s+(?:create|propose|draft|design|develop|build|prepare)\s+(?:a|an)?\s*|to\s+|create\s+(?:a|an)?\s*)', '', subject_phrase, flags=re.IGNORECASE).strip()
+        if subject_phrase.endswith("..."):
+            subject_phrase = subject_phrase[:-3].strip()
+        words_sub = subject_phrase.split()
+        while words_sub and words_sub[-1].lower() in dangling_prepositions:
+            words_sub.pop()
+        subject_phrase = ' '.join(words_sub).strip()
         if not subject_phrase:
             subject_phrase = "Operational Transformation"
 
