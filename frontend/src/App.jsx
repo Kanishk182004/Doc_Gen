@@ -36,6 +36,8 @@ import confetti from 'canvas-confetti';
 import { ParticlesBackground } from './components/ParticlesBackground';
 import { SpotlightCard } from './components/SpotlightCard';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+
 const PROVIDERS = [
   {
     id: "groq",
@@ -214,7 +216,7 @@ export default function App() {
 
   // Poll service health on load
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/health')
+    fetch(`${API_BASE_URL}/health`)
       .then(res => res.json())
       .then(data => setHealthData(data))
       .catch(() => setHealthData({ status: 'offline' }));
@@ -251,7 +253,7 @@ export default function App() {
         model: selectedModel || undefined
       };
 
-      const response = await fetch('http://127.0.0.1:8000/agent', {
+      const response = await fetch(`${API_BASE_URL}/agent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -451,7 +453,7 @@ export default function App() {
           </button>
 
           <a
-            href="http://127.0.0.1:8000/docs"
+            href={`${API_BASE_URL}/docs`}
             target="_blank"
             rel="noreferrer"
             style={{
@@ -1154,7 +1156,7 @@ export default function App() {
                   </button>
 
                   <a
-                    href={`http://127.0.0.1:8000${result.document_url}`}
+                    href={`${API_BASE_URL}${result.document_url}`}
                     download
                     style={{
                       display: 'inline-flex',
