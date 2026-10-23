@@ -884,7 +884,7 @@ export default function App() {
             Generate Executive Word Documents with{' '}
             <span style={{
               color: '#fb923c',
-              color: '#fb923c', textShadow: '0 0 25px rgba(217, 70, 239, 0.5)'
+              textShadow: '0 0 25px rgba(217, 70, 239, 0.5)'
             }}>
               Autonomous Reasoning
             </span>
