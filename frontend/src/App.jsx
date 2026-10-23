@@ -19,11 +19,63 @@ import {
   FileCode,
   Zap,
   Check,
-  Loader2
+  Loader2,
+  KeyRound,
+  SlidersHorizontal,
+  ChevronDown
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ParticlesBackground } from './components/ParticlesBackground';
 import { SpotlightCard } from './components/SpotlightCard';
+
+const PROVIDERS = [
+  {
+    id: "groq",
+    name: "Groq",
+    desc: "Ultra-fast LPU inference (Free tier supported)",
+    defaultModel: "qwen/qwen3.8-27b",
+    models: [
+      { id: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B (Recommended)" },
+      { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B Versatile" },
+      { id: "llama-3.1-8b-instant", name: "Llama 3.1 8B Instant" }
+    ],
+    placeholder: "gsk_..."
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    desc: "Industry standard GPT reasoning",
+    defaultModel: "gpt-4o-mini",
+    models: [
+      { id: "gpt-4o-mini", name: "GPT-4o Mini (Cost Effective)" },
+      { id: "gpt-4o", name: "GPT-4o (Flagship)" },
+      { id: "o1-mini", name: "o1-mini (Reasoning)" }
+    ],
+    placeholder: "sk-proj-..."
+  },
+  {
+    id: "anthropic",
+    name: "Anthropic",
+    desc: "Claude models with high nuance and safety",
+    defaultModel: "claude-3-5-haiku-20241022",
+    models: [
+      { id: "claude-3-5-haiku-20241022", name: "Claude 3.5 Haiku (Speed)" },
+      { id: "claude-3-5-sonnet-20241022", name: "Claude 3.5 Sonnet (Nuance)" }
+    ],
+    placeholder: "sk-ant-..."
+  },
+  {
+    id: "gemini",
+    name: "Google Gemini",
+    desc: "Google DeepMind multimodal flash reasoning",
+    defaultModel: "gemini-1.5-flash",
+    models: [
+      { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash (Fast)" },
+      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro (Deep reasoning)" }
+    ],
+    placeholder: "AIzaSy..."
+  }
+];
 
 const SAMPLE_TEMPLATES = [
   {
@@ -68,14 +120,28 @@ const PIPELINE_STAGES = [
 
 export default function App() {
   const [requestText, setRequestText] = useState(SAMPLE_TEMPLATES[0].text);
+  const [selectedProvider, setSelectedProvider] = useState("groq");
+  const [userApiKey, setUserApiKey] = useState("");
+  const [selectedModel, setSelectedModel] = useState("qwen/qwen3.8-27b");
+  const [showConfig, setShowConfig] = useState(false);
+
   const [isGenerating, setIsGenerating] = useState(false);
-  const [currentStageIdx, setCurrentStageIdx] = useState(0); // 0, 1, 2, 3
-  const [activeTab, setActiveTab] = useState('trace'); // 'trace' | 'assumptions' | 'json'
+  const [currentStageIdx, setCurrentStageIdx] = useState(0);
+  const [activeTab, setActiveTab] = useState('trace');
   const [healthData, setHealthData] = useState(null);
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  // When provider changes, sync default model
+  const handleProviderChange = (provId) => {
+    setSelectedProvider(provId);
+    const prov = PROVIDERS.find(p => p.id === provId);
+    if (prov) {
+      setSelectedModel(prov.defaultModel);
+    }
+  };
 
   // Poll service health on load
   useEffect(() => {
@@ -85,7 +151,7 @@ export default function App() {
       .catch(() => setHealthData({ status: 'offline' }));
   }, []);
 
-  // Timer & animated stage progression during generation
+  // Timer during generation
   useEffect(() => {
     let interval;
     if (isGenerating) {
@@ -104,16 +170,22 @@ export default function App() {
     setErrorMsg(null);
     setCurrentStageIdx(0);
 
-    // Dynamic stage ticker showing live progress
     const t1 = setTimeout(() => setCurrentStageIdx(1), 800);
     const t2 = setTimeout(() => setCurrentStageIdx(2), 2200);
     const t3 = setTimeout(() => setCurrentStageIdx(3), 3600);
 
     try {
+      const payload = {
+        request: requestText.trim(),
+        provider: selectedProvider,
+        api_key: userApiKey.trim() || undefined,
+        model: selectedModel || undefined
+      };
+
       const response = await fetch('http://127.0.0.1:8000/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request: requestText.trim() })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -122,7 +194,7 @@ export default function App() {
       }
 
       const data = await response.json();
-      setCurrentStageIdx(4); // All complete
+      setCurrentStageIdx(4);
       setResult(data);
       confetti({
         particleCount: 75,
@@ -146,6 +218,8 @@ export default function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const currentProviderObj = PROVIDERS.find(p => p.id === selectedProvider) || PROVIDERS[0];
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -156,7 +230,7 @@ export default function App() {
     }}>
       <ParticlesBackground />
 
-      {/* Top Google-Grade Cyber Emerald Nav */}
+      {/* Top Cyber Emerald Nav */}
       <nav style={{
         position: 'sticky',
         top: 0,
@@ -170,7 +244,6 @@ export default function App() {
         justifyContent: 'space-between'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          {/* Logo with neon emerald glow */}
           <div style={{
             width: '36px',
             height: '36px',
@@ -198,7 +271,7 @@ export default function App() {
                 fontWeight: '700',
                 letterSpacing: '0.04em'
               }}>
-                AUTONOMOUS STUDIO
+                MULTI-PROVIDER STUDIO
               </span>
             </div>
             <span style={{ fontSize: '11px', color: '#64748b' }}>
@@ -207,30 +280,28 @@ export default function App() {
           </div>
         </div>
 
-        {/* Live Engine & Docs Indicators */}
+        {/* Live Provider & Settings Pill */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 14px',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(10, 13, 17, 0.8)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            fontSize: '12px'
-          }}>
-            <span style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: healthData?.status === 'healthy' ? '#00f5a0' : '#f59e0b',
-              boxShadow: '0 0 10px #00f5a0'
-            }} />
-            <span style={{ color: '#94a3b8' }}>Model:</span>
-            <span style={{ color: '#ffffff', fontWeight: '600' }}>
-              {healthData?.model || 'qwen/qwen3.8-27b'}
-            </span>
-          </div>
+          <button
+            onClick={() => setShowConfig(!showConfig)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              borderRadius: '9999px',
+              backgroundColor: showConfig ? 'rgba(0, 245, 160, 0.15)' : 'rgba(10, 13, 17, 0.8)',
+              border: `1px solid ${showConfig ? 'rgba(0, 245, 160, 0.5)' : 'rgba(255, 255, 255, 0.1)'}`,
+              color: showConfig ? '#00f5a0' : '#cbd5e1',
+              fontSize: '12px',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <SlidersHorizontal size={14} />
+            <span>LLM: <strong>{currentProviderObj.name}</strong> ({selectedModel})</span>
+            <ChevronDown size={13} />
+          </button>
 
           <a
             href="http://127.0.0.1:8000/docs"
@@ -247,8 +318,7 @@ export default function App() {
               color: '#00f5a0',
               fontSize: '12px',
               fontWeight: '600',
-              textDecoration: 'none',
-              transition: 'all 0.2s'
+              textDecoration: 'none'
             }}
           >
             <span>Swagger API</span>
@@ -266,8 +336,8 @@ export default function App() {
         zIndex: 10
       }}>
 
-        {/* Studio Hero Title */}
-        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 36px' }}>
+        {/* Hero Title */}
+        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 32px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -281,11 +351,11 @@ export default function App() {
             marginBottom: '16px'
           }}>
             <Sparkles size={14} />
-            <span>Autonomous Document Agent — Multi-Step Planning</span>
+            <span>Autonomous Document Agent — Multi-Provider Inference</span>
           </div>
 
           <h1 style={{
-            fontSize: '38px',
+            fontSize: '36px',
             fontWeight: '800',
             letterSpacing: '-0.04em',
             margin: '0 0 12px',
@@ -301,15 +371,132 @@ export default function App() {
           </h1>
 
           <p style={{ fontSize: '15px', color: '#94a3b8', margin: 0, lineHeight: '1.6' }}>
-            Input natural language instructions. The agent plans dependencies, executes modular tools, evaluates quality, and delivers publication-ready .docx files.
+            Choose Groq, OpenAI, Anthropic, or Google Gemini. Bring your own key or use default environment configuration.
           </p>
         </div>
+
+        {/* Dynamic Provider & API Key Modal / Expandable Panel */}
+        {showConfig && (
+          <div style={{ maxWidth: '840px', margin: '0 auto 24px' }}>
+            <SpotlightCard style={{ padding: '24px 28px', border: '1px solid rgba(0, 245, 160, 0.3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ fontSize: '14px', fontWeight: '700', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <KeyRound size={16} color="#00f5a0" />
+                  <span>LLM Provider & Custom Key Configuration</span>
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>Client-side injected per request</span>
+              </div>
+
+              {/* Provider Selector Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '18px' }}>
+                {PROVIDERS.map(p => {
+                  const isSelected = selectedProvider === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => handleProviderChange(p.id)}
+                      style={{
+                        padding: '12px 10px',
+                        borderRadius: '10px',
+                        backgroundColor: isSelected ? 'rgba(0, 245, 160, 0.12)' : 'rgba(5, 7, 10, 0.6)',
+                        border: `1px solid ${isSelected ? '#00f5a0' : 'rgba(255, 255, 255, 0.08)'}`,
+                        color: isSelected ? '#00f5a0' : '#cbd5e1',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div style={{ fontSize: '13px', fontWeight: '700' }}>{p.name}</div>
+                      <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '4px' }}>
+                        {p.models.length} models
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Model Dropdown + API Key Input in a clean 2-column row */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '14px' }}>
+                
+                {/* Model Selector */}
+                <div>
+                  <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '6px', fontWeight: '600' }}>
+                    Select Model:
+                  </label>
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      backgroundColor: 'rgba(5, 7, 10, 0.85)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#ffffff',
+                      fontSize: '12.5px',
+                      outline: 'none'
+                    }}
+                  >
+                    {currentProviderObj.models.map(m => (
+                      <option key={m.id} value={m.id} style={{ backgroundColor: '#0a0d11', color: '#fff' }}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* API Key Input */}
+                <div>
+                  <label style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginBottom: '6px', fontWeight: '600' }}>
+                    API Key for {currentProviderObj.name} (Optional if set in .env):
+                  </label>
+                  <input
+                    type="password"
+                    value={userApiKey}
+                    onChange={(e) => setUserApiKey(e.target.value)}
+                    placeholder={currentProviderObj.placeholder}
+                    style={{
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      backgroundColor: 'rgba(5, 7, 10, 0.85)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#00f5a0',
+                      fontSize: '12.5px',
+                      outline: 'none',
+                      fontFamily: 'monospace'
+                    }}
+                  />
+                </div>
+
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '14px' }}>
+                <button
+                  onClick={() => setShowConfig(false)}
+                  style={{
+                    padding: '6px 16px',
+                    borderRadius: '9999px',
+                    backgroundColor: '#00f5a0',
+                    color: '#05070a',
+                    fontWeight: '700',
+                    fontSize: '11.5px',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Apply Configuration
+                </button>
+              </div>
+            </SpotlightCard>
+          </div>
+        )}
 
         {/* Central Card: Compact Prompt Studio */}
         <div style={{ maxWidth: '840px', margin: '0 auto 32px' }}>
           <SpotlightCard style={{ padding: '24px 28px' }}>
             
-            {/* Header of prompt box */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontSize: '13px', fontWeight: '700', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Terminal size={15} color="#00f5a0" />
@@ -318,7 +505,6 @@ export default function App() {
               <span style={{ fontSize: '11px', color: '#64748b' }}>Endpoint: POST /agent</span>
             </div>
 
-            {/* Input Textarea */}
             <textarea
               value={requestText}
               onChange={(e) => setRequestText(e.target.value)}
@@ -341,7 +527,7 @@ export default function App() {
               }}
             />
 
-            {/* Compact Action Bar (Presets + Compact Button) */}
+            {/* Action Bar (Presets + Compact Button) */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -350,7 +536,6 @@ export default function App() {
               flexWrap: 'wrap',
               gap: '12px'
             }}>
-              {/* Preset Chips */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '12px', color: '#64748b' }}>Presets:</span>
                 {SAMPLE_TEMPLATES.map((tmpl, idx) => (
@@ -382,7 +567,6 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Compact Cyber Emerald Synthesize Button */}
               <button
                 onClick={handleGenerate}
                 disabled={isGenerating || !requestText.trim()}
@@ -441,7 +625,7 @@ export default function App() {
           </SpotlightCard>
         </div>
 
-        {/* LIVE TASK PROGRESS TRACKER (Shows below synthesis while loading or after completion) */}
+        {/* Live Task Progress Tracker */}
         {(isGenerating || result) && (
           <div style={{ maxWidth: '840px', margin: '0 auto 36px' }}>
             <SpotlightCard style={{ padding: '22px 26px' }}>
@@ -455,7 +639,6 @@ export default function App() {
                 </span>
               </div>
 
-              {/* Step Progression List */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {PIPELINE_STAGES.map((stg, idx) => {
                   const isDone = isGenerating ? currentStageIdx > idx : true;
@@ -479,7 +662,6 @@ export default function App() {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      {/* Status Icon */}
                       <div style={{
                         width: '26px',
                         height: '26px',
@@ -501,7 +683,6 @@ export default function App() {
                         )}
                       </div>
 
-                      {/* Stage Description */}
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
                           <span style={{
@@ -531,11 +712,10 @@ export default function App() {
           </div>
         )}
 
-        {/* Output Section (Appears after generation) */}
+        {/* Output Section */}
         {result && (
           <div style={{ maxWidth: '840px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            {/* Document Header Card */}
             <SpotlightCard style={{
               padding: '28px 32px',
               border: '1px solid rgba(0, 245, 160, 0.3)',
@@ -575,7 +755,6 @@ export default function App() {
                   </span>
                 </div>
 
-                {/* Compact Green Download Button */}
                 <a
                   href={`http://127.0.0.1:8000${result.document_url}`}
                   download
@@ -601,7 +780,6 @@ export default function App() {
                 </a>
               </div>
 
-              {/* Status Indicator Bar */}
               <div style={{
                 display: 'flex',
                 gap: '24px',
@@ -617,7 +795,7 @@ export default function App() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Cpu size={16} color="#00f5a0" />
-                  <span style={{ color: '#94a3b8' }}>Mode:</span>
+                  <span style={{ color: '#94a3b8' }}>Active Provider:</span>
                   <strong style={{ color: '#00f5a0' }}>{result.llm_mode.toUpperCase()}</strong>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

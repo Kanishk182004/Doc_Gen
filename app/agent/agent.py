@@ -22,20 +22,32 @@ class DocumentAgent:
         request_id = str(uuid.uuid4())
         logger.info(f"[{request_id}] Intake processing request: {agent_request.request[:80]}...")
 
+        # Dynamically instantiate or configure LLMClient if user requested specific provider/key/model
+        active_llm = self.llm
+        if agent_request.provider or agent_request.api_key or agent_request.model:
+            active_llm = LLMClient(
+                provider=agent_request.provider or "groq",
+                api_key=agent_request.api_key,
+                model=agent_request.model
+            )
+        planner = DynamicPlanner(active_llm)
+        tools = ToolRegistry(active_llm)
+        orchestrator = ExecutionOrchestrator(tools)
+
         # Stage 1: Request intake & analysis
-        intake = self.planner.parse_request(agent_request.request)
+        intake = planner.parse_request(agent_request.request)
         logger.info(f"[{request_id}] Identified type: {intake.document_type}, assumptions: {len(intake.assumptions)}")
 
         # Stage 2: Dynamic planning
-        plan = self.planner.generate_plan(intake)
+        plan = planner.generate_plan(intake)
         logger.info(f"[{request_id}] Generated plan with {len(plan.tasks)} tasks.")
 
         # Stage 3, 4, 5, 6: Execution Orchestration & DOCX generation
-        executed_plan, doc_content, quality_review, docx_filename = self.orchestrator.execute_plan(
+        executed_plan, doc_content, quality_review, docx_filename = orchestrator.execute_plan(
             plan, intake
         )
 
-        llm_mode = "groq" if self.llm.is_available else "deterministic_fallback"
+        llm_mode = active_llm.provider if active_llm.is_available else "deterministic_fallback"
 
         # Serialize tasks for API response
         plan_trace = [

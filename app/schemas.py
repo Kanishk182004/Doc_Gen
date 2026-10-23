@@ -15,6 +15,9 @@ class FindingSeverity(str, Enum):
 
 class AgentRequest(BaseModel):
     request: str = Field(..., min_length=5, max_length=4000, description="User instruction for document generation")
+    provider: Optional[str] = Field(default="groq", description="LLM provider: groq, openai, anthropic, or gemini")
+    api_key: Optional[str] = Field(default=None, description="Custom user-provided API key")
+    model: Optional[str] = Field(default=None, description="Custom model identifier")
 
 class DocumentIntake(BaseModel):
     objective: str
