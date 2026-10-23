@@ -54,7 +54,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
     title_run.font.name = "Calibri"
     title_run.font.size = Pt(24)
     title_run.font.bold = True
-    title_run.font.color.rgb = RGBColor(31, 78, 121)  # Deep Navy
+    title_run.font.color.rgb = RGBColor(17, 24, 39)  # Deep Professional Charcoal / Black (replacing navy blue)
 
     # Subtitle
     if doc_content.subtitle:
@@ -94,11 +94,18 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
 
     doc.add_paragraph().paragraph_format.space_after = Pt(10)
 
+    def format_heading(heading_element, color_rgb=RGBColor(17, 24, 39)):
+        heading_element.paragraph_format.space_before = Pt(14)
+        heading_element.paragraph_format.space_after = Pt(4)
+        for r in heading_element.runs:
+            r.font.name = "Calibri"
+            r.font.color.rgb = color_rgb
+            r.font.bold = True
+
     # Executive Summary
     if doc_content.executive_summary:
         h_exec = doc.add_heading("Executive Summary", level=1)
-        h_exec.paragraph_format.space_before = Pt(14)
-        h_exec.paragraph_format.space_after = Pt(4)
+        format_heading(h_exec)
         p_exec = doc.add_paragraph(doc_content.executive_summary)
         p_exec.paragraph_format.line_spacing = 1.15
         p_exec.paragraph_format.space_after = Pt(12)
@@ -106,8 +113,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
     # Sections
     for sec in doc_content.sections:
         h = doc.add_heading(sec.heading, level=sec.level)
-        h.paragraph_format.space_before = Pt(14)
-        h.paragraph_format.space_after = Pt(4)
+        format_heading(h)
 
         if sec.body:
             p = doc.add_paragraph(sec.body)
@@ -124,11 +130,11 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
             t = doc.add_table(rows=len(sec.table_rows) + 1, cols=len(sec.table_headers))
             t.alignment = WD_TABLE_ALIGNMENT.CENTER
             
-            # Header Row
+            # Header Row - Professional Dark Slate Header
             hdr_cells = t.rows[0].cells
             for idx, text in enumerate(sec.table_headers):
                 hdr_cells[idx].text = text
-                set_cell_background(hdr_cells[idx], "1F4E79")
+                set_cell_background(hdr_cells[idx], "1E293B")
                 set_cell_margins(hdr_cells[idx], top=100, bottom=100, left=120, right=120)
                 for prg in hdr_cells[idx].paragraphs:
                     for run in prg.runs:
@@ -148,14 +154,14 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
                         for prg in row_cells[c_idx].paragraphs:
                             for run in prg.runs:
                                 run.font.size = Pt(9)
+                                run.font.color.rgb = RGBColor(30, 41, 59)
             
             doc.add_paragraph().paragraph_format.space_after = Pt(6)
 
     # Assumptions & Boundary Conditions
     if doc_content.assumptions:
         h_assump = doc.add_heading("Assumptions & Operational Constraints", level=1)
-        h_assump.paragraph_format.space_before = Pt(14)
-        h_assump.paragraph_format.space_after = Pt(4)
+        format_heading(h_assump)
         for a in doc_content.assumptions:
             ap = doc.add_paragraph(a, style="List Bullet")
             ap.paragraph_format.space_after = Pt(3)
@@ -163,8 +169,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
     # Next Steps / Recommendations
     if doc_content.next_steps:
         h_next = doc.add_heading("Next Steps & Actionable Recommendations", level=1)
-        h_next.paragraph_format.space_before = Pt(14)
-        h_next.paragraph_format.space_after = Pt(4)
+        format_heading(h_next)
         for idx, step in enumerate(doc_content.next_steps, 1):
             doc.add_paragraph(f"{idx}. {step}")
 

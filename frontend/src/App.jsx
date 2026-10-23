@@ -186,7 +186,7 @@ export default function App() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em', color: '#ffffff' }}>
-                FLUID AI
+                DOCUSYNTH
               </span>
               <span style={{
                 fontSize: '10px',
