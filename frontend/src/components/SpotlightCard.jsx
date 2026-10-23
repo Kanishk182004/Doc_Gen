@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 
-// Crisp Jet Black Card with distinct Plum border accent and Peach interactive glow
+// Calm, eye-friendly card with soft borders and gentle illumination
 export const SpotlightCard = ({ 
   children, 
   className = '', 
-  accentColor = '#00f0ff', // Plum structural border
-  spotlightGlow = 'rgba(0, 240, 255, 0.14)', // Peach interactive hover
   style = {} 
 }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -27,14 +25,13 @@ export const SpotlightCard = ({
       style={{
         position: 'relative',
         borderRadius: '16px',
-        border: '1px solid rgba(0, 240, 255, 0.2)', // Discrete plum border line
-        backgroundColor: '#050407', // Jet black pure core
-        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        backgroundColor: '#0d1117', // Calm GitHub dark background (gentle on eyes)
         overflow: 'hidden',
         boxShadow: isHovered 
-          ? '0 16px 45px -10px rgba(0, 0, 0, 0.95), 0 0 25px rgba(0, 240, 255, 0.18)' 
-          : '0 8px 30px rgba(0, 0, 0, 0.85)',
-        transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+          ? '0 12px 35px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(56, 189, 248, 0.08)' 
+          : '0 4px 20px rgba(0, 0, 0, 0.4)',
+        transition: 'all 0.25s ease',
         ...style
       }}
       className={className}
@@ -49,7 +46,7 @@ export const SpotlightCard = ({
           pointerEvents: 'none',
           opacity: isHovered ? 1 : 0,
           transition: 'opacity 0.3s ease',
-          background: `radial-gradient(circle 360px at ${position.x}px ${position.y}px, ${spotlightGlow}, transparent 75%)`,
+          background: `radial-gradient(circle 320px at ${position.x}px ${position.y}px, rgba(56, 189, 248, 0.06), transparent 70%)`,
           zIndex: 1
         }}
       />

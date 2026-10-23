@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-// Single Unified Electric Neon Cyan (#00f0ff) Stardust & Ambient Filament Network
+// Calm, subtle background particles with zero harsh flicker or intense glow
 export const ParticlesBackground = () => {
   const canvasRef = useRef(null);
 
@@ -19,32 +19,29 @@ export const ParticlesBackground = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    const neonCyan = { r: 0, g: 240, b: 255, hex: '#00f0ff' };
-
-    const particles = Array.from({ length: 55 }, () => ({
+    // Reduced count, gentle drifting, low opacity
+    const particles = Array.from({ length: 30 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35,
-      size: Math.random() * 2 + 0.9,
-      alpha: Math.random() * 0.6 + 0.25,
-      dAlpha: (Math.random() - 0.5) * 0.015,
-      color: neonCyan
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: (Math.random() - 0.5) * 0.15,
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.25 + 0.1
     }));
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Connecting filaments in Electric Neon Cyan
+      // Very soft, non-intrusive filaments
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 130) {
+          if (dist < 110) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(0, 240, 255, ${0.12 * (1 - dist / 130)})`;
-            ctx.lineWidth = 0.7;
+            ctx.strokeStyle = `rgba(56, 189, 248, ${0.05 * (1 - dist / 110)})`;
+            ctx.lineWidth = 0.5;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
@@ -52,12 +49,10 @@ export const ParticlesBackground = () => {
         }
       }
 
-      // Glowing Neon Cyan Sparks
+      // Soft starlight without blinding bloom
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        p.alpha += p.dAlpha;
-        if (p.alpha > 0.85 || p.alpha < 0.2) p.dAlpha = -p.dAlpha;
 
         if (p.x < 0) p.x = width;
         if (p.x > width) p.x = 0;
@@ -66,11 +61,8 @@ export const ParticlesBackground = () => {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 240, 255, ${p.alpha})`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#00f0ff';
+        ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
         ctx.fill();
-        ctx.shadowBlur = 0;
       });
 
       animationFrameId = requestAnimationFrame(render);

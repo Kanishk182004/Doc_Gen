@@ -2,18 +2,16 @@
 
 @layer base {
   :root {
-    --bg-primary: #050407; /* Pure Jet Black with velvet plum hue */
-    --bg-secondary: #0d0a12;
-    --bg-tertiary: #16101d;
-    --border-color: rgba(0, 240, 255, 0.12);
-    --border-highlight: rgba(0, 240, 255, 0.45);
-    --accent-plum: #00f0ff;
-    --accent-peach: #00f0ff;
-    --accent-plum-glow: rgba(0, 240, 255, 0.35);
-    --accent-peach-glow: rgba(0, 240, 255, 0.3);
-    --text-primary: #fdf4ff;
-    --text-secondary: #e2d4e8;
-    --text-muted: #9d8aa5;
+    --bg-primary: #0a0d14; /* Deep, calm midnight slate - eliminates eye strain */
+    --bg-secondary: #0f141f;
+    --bg-tertiary: #161c2a;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-highlight: rgba(56, 189, 248, 0.3);
+    --accent-blue: #38bdf8; /* Soft calm sky blue */
+    --accent-indigo: #818cf8;
+    --text-primary: #f1f5f9; /* Warm, gentle off-white */
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
   }
 
   body {
@@ -26,20 +24,20 @@
   }
 }
 
-/* Custom scrollbars for velvet plum-peach feel */
+/* Eye-friendly custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(13, 10, 18, 0.8);
+  background: rgba(15, 20, 31, 0.8);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 240, 255, 0.4);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f0ff;
+  background: rgba(148, 163, 184, 0.45);
 }
 
 /* Mobile & Tablet Responsiveness Utilities */
