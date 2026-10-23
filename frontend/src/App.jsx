@@ -156,9 +156,8 @@ export default function App() {
     return localStorage.getItem('scribeai_selected_model') || "openai/gpt-oss-20b";
   });
   const [showConfig, setShowConfig] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // User Authentication State
+  // User Authentication State (Persistent Session)
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('scribeai_user');
@@ -172,11 +171,22 @@ export default function App() {
     return localStorage.getItem('scribeai_token') || '';
   });
 
+  // Modal automatically opens if user is not authenticated
+  const [showAuthModal, setShowAuthModal] = useState(!currentUser);
+
+  // Keep modal open if user is not logged in
+  useEffect(() => {
+    if (!currentUser) {
+      setShowAuthModal(true);
+    }
+  }, [currentUser]);
+
   const handleAuthSuccess = (authData) => {
     setCurrentUser(authData.user);
     setAuthToken(authData.token);
     localStorage.setItem('scribeai_user', JSON.stringify(authData.user));
     localStorage.setItem('scribeai_token', authData.token);
+    setShowAuthModal(false);
   };
 
   const handleLogout = () => {
@@ -184,6 +194,7 @@ export default function App() {
     setAuthToken('');
     localStorage.removeItem('scribeai_user');
     localStorage.removeItem('scribeai_token');
+    setShowAuthModal(true);
   };
 
   // Current active key for whichever provider is currently selected
@@ -1523,12 +1534,15 @@ export default function App() {
       </main>
       </div>
 
-      {/* Auth Modal */}
+      {/* Auth Modal (Gated Login / Sign-up) */}
       <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
+        isOpen={showAuthModal || !currentUser}
+        onClose={() => {
+          if (currentUser) setShowAuthModal(false);
+        }}
         onAuthSuccess={handleAuthSuccess}
         apiBaseUrl={API_BASE_URL}
+        isForced={!currentUser}
       />
     </div>
   );
