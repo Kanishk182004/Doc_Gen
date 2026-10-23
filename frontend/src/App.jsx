@@ -133,13 +133,30 @@ export default function App() {
   const [selectedProvider, setSelectedProvider] = useState(() => {
     return localStorage.getItem('scribeai_selected_provider') || "groq";
   });
-  const [userApiKey, setUserApiKey] = useState(() => {
-    return localStorage.getItem('scribeai_user_api_key') || "";
+  // Store separate API keys for each provider: { groq: "...", openai: "...", anthropic: "...", gemini: "..." }
+  const [providerKeys, setProviderKeys] = useState(() => {
+    try {
+      const saved = localStorage.getItem('scribeai_provider_keys');
+      if (saved) return JSON.parse(saved);
+      // Migration: check legacy single key
+      const legacyKey = localStorage.getItem('scribeai_user_api_key') || "";
+      return {
+        groq: legacyKey.startsWith("gsk_") ? legacyKey : "",
+        openai: legacyKey.startsWith("sk-") && !legacyKey.startsWith("sk-ant") ? legacyKey : "",
+        anthropic: legacyKey.startsWith("sk-ant") ? legacyKey : "",
+        gemini: legacyKey.startsWith("AIza") ? legacyKey : ""
+      };
+    } catch {
+      return { groq: "", openai: "", anthropic: "", gemini: "" };
+    }
   });
   const [selectedModel, setSelectedModel] = useState(() => {
     return localStorage.getItem('scribeai_selected_model') || "openai/gpt-oss-20b";
   });
   const [showConfig, setShowConfig] = useState(false);
+
+  // Current active key for whichever provider is currently selected
+  const currentApiKey = providerKeys[selectedProvider] || "";
 
   // Persist user LLM preferences in localStorage
   useEffect(() => {
@@ -147,16 +164,19 @@ export default function App() {
   }, [selectedProvider]);
 
   useEffect(() => {
-    if (userApiKey) {
-      localStorage.setItem('scribeai_user_api_key', userApiKey);
-    } else {
-      localStorage.removeItem('scribeai_user_api_key');
-    }
-  }, [userApiKey]);
+    localStorage.setItem('scribeai_provider_keys', JSON.stringify(providerKeys));
+  }, [providerKeys]);
 
   useEffect(() => {
     localStorage.setItem('scribeai_selected_model', selectedModel);
   }, [selectedModel]);
+
+  const handleKeyChange = (providerId, newKey) => {
+    setProviderKeys(prev => ({
+      ...prev,
+      [providerId]: newKey
+    }));
+  };
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentStageIdx, setCurrentStageIdx] = useState(0);
@@ -269,10 +289,11 @@ export default function App() {
     const t3 = setTimeout(() => setCurrentStageIdx(3), 3600);
 
     try {
+      const activeKey = providerKeys[selectedProvider]?.trim() || undefined;
       const payload = {
         request: requestText.trim(),
         provider: selectedProvider,
-        api_key: userApiKey.trim() || undefined,
+        api_key: activeKey,
         model: selectedModel || undefined
       };
 
@@ -842,14 +863,14 @@ export default function App() {
                     <label style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>
                       API Key for {currentProviderObj.name}:
                     </label>
-                    <span style={{ fontSize: '10px', color: userApiKey ? '#00f5a0' : '#64748b' }}>
-                      {userApiKey ? '✓ Custom Key Saved' : 'Optional (Fallback active)'}
+                    <span style={{ fontSize: '10px', color: currentApiKey ? '#00f5a0' : '#64748b' }}>
+                      {currentApiKey ? `✓ ${currentProviderObj.name} Key Saved` : 'No key (Fallback active)'}
                     </span>
                   </div>
                   <input
                     type="password"
-                    value={userApiKey}
-                    onChange={(e) => setUserApiKey(e.target.value)}
+                    value={currentApiKey}
+                    onChange={(e) => handleKeyChange(selectedProvider, e.target.value)}
                     placeholder={currentProviderObj.placeholder}
                     style={{
                       width: '100%',
