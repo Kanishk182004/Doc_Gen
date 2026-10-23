@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-// Unified Cyber Emerald (#00f5a0) glitter and ambient neural network
+// Luxurious Jet Black with Plum & Peach Glitter Sparks and Neural Constellations
 export const ParticlesBackground = () => {
   const canvasRef = useRef(null);
 
@@ -19,29 +19,44 @@ export const ParticlesBackground = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    const particles = Array.from({ length: 55 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35,
-      size: Math.random() * 2 + 0.8,
-      alpha: Math.random() * 0.6 + 0.2,
-      dAlpha: (Math.random() - 0.5) * 0.015
-    }));
+    // Plum & Peach glitter palette
+    const colors = [
+      { r: 217, g: 70, b: 239, hex: '#d946ef' },  // Vivid Plum / Orchid
+      { r: 251, g: 146, b: 60, hex: '#fb923c' },   // Radiant Peach
+      { r: 244, g: 114, b: 182, hex: '#f472b6' }, // Peach Blossom Pink
+      { r: 168, g: 85, b: 247, hex: '#a855f7' }   // Deep Royal Plum
+    ];
+
+    const particles = Array.from({ length: 65 }, () => {
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        size: Math.random() * 2.2 + 0.9,
+        alpha: Math.random() * 0.65 + 0.25,
+        dAlpha: (Math.random() - 0.5) * 0.018,
+        color
+      };
+    });
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Connecting neural filaments in emerald
+      // Connecting neural filaments in subtle plum-peach
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 130) {
+          if (dist < 135) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(0, 245, 160, ${0.12 * (1 - dist / 130)})`;
-            ctx.lineWidth = 0.7;
+            const grad = ctx.createLinearGradient(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
+            grad.addColorStop(0, `rgba(${particles[i].color.r}, ${particles[i].color.g}, ${particles[i].color.b}, ${0.14 * (1 - dist / 135)})`);
+            grad.addColorStop(1, `rgba(${particles[j].color.r}, ${particles[j].color.g}, ${particles[j].color.b}, ${0.14 * (1 - dist / 135)})`);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 0.75;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
@@ -49,12 +64,12 @@ export const ParticlesBackground = () => {
         }
       }
 
-      // Emerald sparkles
+      // Glittery Plum & Peach stardust sparkles
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
         p.alpha += p.dAlpha;
-        if (p.alpha > 0.85 || p.alpha < 0.2) p.dAlpha = -p.dAlpha;
+        if (p.alpha > 0.9 || p.alpha < 0.2) p.dAlpha = -p.dAlpha;
 
         if (p.x < 0) p.x = width;
         if (p.x > width) p.x = 0;
@@ -63,9 +78,9 @@ export const ParticlesBackground = () => {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0, 245, 160, ${p.alpha})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = '#00f5a0';
+        ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color.hex;
         ctx.fill();
         ctx.shadowBlur = 0;
       });

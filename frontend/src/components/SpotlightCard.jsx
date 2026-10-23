@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 
-// Cyber Emerald Spotlight Card
-export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(0, 245, 160, 0.16)', style = {} }) => {
+// Luxurious Jet Black with Plum & Peach Spotlight Glow
+export const SpotlightCard = ({ 
+  children, 
+  className = '', 
+  spotlightColor = 'rgba(217, 70, 239, 0.15)', // Plum glow
+  secondarySpotlight = 'rgba(251, 146, 60, 0.12)', // Peach glow
+  style = {} 
+}) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
 
@@ -21,13 +27,13 @@ export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba
       style={{
         position: 'relative',
         borderRadius: '16px',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        backgroundColor: '#0a0d11',
+        border: '1px solid rgba(217, 70, 239, 0.15)',
+        backgroundColor: '#070509', // Deep Jet Black with subtle plum undertone
         backdropFilter: 'blur(20px)',
         overflow: 'hidden',
         boxShadow: isHovered 
-          ? '0 12px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 245, 160, 0.15)' 
-          : '0 8px 30px rgba(0, 0, 0, 0.6)',
+          ? '0 16px 45px -10px rgba(0, 0, 0, 0.9), 0 0 30px rgba(217, 70, 239, 0.18), 0 0 15px rgba(251, 146, 60, 0.12)' 
+          : '0 8px 30px rgba(0, 0, 0, 0.75)',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         ...style
       }}
@@ -43,7 +49,7 @@ export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba
           pointerEvents: 'none',
           opacity: isHovered ? 1 : 0,
           transition: 'opacity 0.35s ease',
-          background: `radial-gradient(circle 380px at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 75%)`,
+          background: `radial-gradient(circle 380px at ${position.x}px ${position.y}px, ${spotlightColor}, ${secondarySpotlight} 40%, transparent 80%)`,
           zIndex: 1
         }}
       />

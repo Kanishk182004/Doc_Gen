@@ -59,9 +59,9 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, apiBaseUrl, isForced
         <SpotlightCard style={{
           padding: '36px 32px',
           borderRadius: '16px',
-          border: '1px solid rgba(0, 245, 160, 0.4)',
-          backgroundColor: '#0a0d11',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 245, 160, 0.2)'
+          border: '1px solid rgba(251, 146, 60, 0.4)',
+          backgroundColor: '#070509',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(251, 146, 60, 0.2)'
         }}>
           {/* Close button only shown if not strictly forced */}
           {!isForced && (
@@ -88,14 +88,14 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, apiBaseUrl, isForced
               width: '46px',
               height: '46px',
               borderRadius: '14px',
-              backgroundColor: 'rgba(0, 245, 160, 0.12)',
-              border: '1px solid rgba(0, 245, 160, 0.4)',
+              backgroundColor: 'rgba(251, 146, 60, 0.12)',
+              border: '1px solid rgba(251, 146, 60, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 14px'
             }}>
-              <Sparkles size={22} color="#00f5a0" />
+              <Sparkles size={22} color="#fb923c" />
             </div>
             <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 6px', color: '#fff' }}>
               {mode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
@@ -217,9 +217,9 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, apiBaseUrl, isForced
                 width: '100%',
                 padding: '12px 16px',
                 borderRadius: '8px',
-                backgroundColor: '#00f5a0',
+                backgroundColor: '#fb923c',
                 border: 'none',
-                color: '#05070a',
+                color: '#050407',
                 fontSize: '13.5px',
                 fontWeight: '700',
                 cursor: loading ? 'not-allowed' : 'pointer',
@@ -229,7 +229,7 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, apiBaseUrl, isForced
                 gap: '8px',
                 marginTop: '10px',
                 transition: 'all 0.15s ease',
-                boxShadow: '0 4px 15px rgba(0, 245, 160, 0.3)'
+                boxShadow: '0 4px 15px rgba(251, 146, 60, 0.3)'
               }}
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
@@ -253,9 +253,9 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess, apiBaseUrl, isForced
               }}
             >
               {mode === 'signup' ? (
-                <span>Already have an account? <strong style={{ color: '#00f5a0' }}>Sign In</strong></span>
+                <span>Already have an account? <strong style={{ color: '#fb923c' }}>Sign In</strong></span>
               ) : (
-                <span>Don't have an account? <strong style={{ color: '#00f5a0' }}>Sign Up</strong></span>
+                <span>Don't have an account? <strong style={{ color: '#fb923c' }}>Sign Up</strong></span>
               )}
             </button>
           </div>
