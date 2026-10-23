@@ -89,6 +89,7 @@ class LLMClient:
 
                         res = client.post(url, headers=headers, json=payload)
                         if res.status_code == 200:
+                            self.successful_calls = getattr(self, "successful_calls", 0) + 1
                             return res.json()["choices"][0]["message"]["content"]
                         elif res.status_code == 429 and attempt < max_retries - 1:
                             # Parse retry delay if provided by Groq
@@ -128,6 +129,7 @@ class LLMClient:
                         }
                         res = client.post(url, headers=headers, json=payload)
                         if res.status_code == 200:
+                            self.successful_calls = getattr(self, "successful_calls", 0) + 1
                             return res.json()["content"][0]["text"]
                         else:
                             logger.warning(f"Anthropic API returned HTTP {res.status_code}: {res.text}")
@@ -146,6 +148,7 @@ class LLMClient:
                         if res.status_code == 200:
                             candidates = res.json().get("candidates", [])
                             if candidates and "content" in candidates[0]:
+                                self.successful_calls = getattr(self, "successful_calls", 0) + 1
                                 return candidates[0]["content"]["parts"][0]["text"]
                             return None
                         else:

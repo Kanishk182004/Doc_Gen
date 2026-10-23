@@ -34,6 +34,9 @@ class DocumentAgent:
         tools = ToolRegistry(active_llm)
         orchestrator = ExecutionOrchestrator(tools)
 
+        # Track whether live LLM succeeded or failed
+        active_llm.successful_calls = 0
+
         # Stage 1: Request intake & analysis
         intake = planner.parse_request(agent_request.request)
         logger.info(f"[{request_id}] Identified type: {intake.document_type}, assumptions: {len(intake.assumptions)}")
@@ -47,7 +50,11 @@ class DocumentAgent:
             plan, intake
         )
 
-        llm_mode = active_llm.provider if active_llm.is_available else "deterministic_fallback"
+        # Mark llm_mode: only show provider name if live LLM actually answered successfully!
+        if getattr(active_llm, "successful_calls", 0) > 0:
+            llm_mode = active_llm.provider
+        else:
+            llm_mode = "deterministic_fallback"
 
         # Serialize tasks for API response
         plan_trace = [
