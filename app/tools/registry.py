@@ -213,114 +213,113 @@ Return ONLY valid JSON matching this schema:
         subtitle = outline.get("subtitle", f"Audience: {intake.target_audience}")
 
         # Ensure title is not truncated or excessively long
-        if "..." in title or len(title) > 85 or title.lower().endswith(" suppo"):
-            if "proposal" in doc_type_lower:
-                title = "Business Proposal: Improving Customer Support with AI"
-            elif "project" in doc_type_lower:
-                title = "Project Plan: AI Customer Support Chatbot Implementation"
-            else:
-                title = f"{intake.document_type}: {intake.objective[:45]}"
+        if "..." in title or len(title) > 85 or any(title.lower().endswith(f" {w}") for w in ["to", "for", "with", "and", "by", "the", "a", "an", "suppo", "custo", "impl"]):
+            clean_obj = intake.objective.split(":")[ -1].strip() if ":" in intake.objective else intake.objective
+            title = f"{intake.document_type}: {clean_obj[:55].strip()}"
+
+        # Fallback Generator: Dynamically adapt content to the actual intake objective and genre
+        subject_phrase = intake.objective.replace(f"{intake.document_type}:", "").strip()
+        if not subject_phrase:
+            subject_phrase = "Operational Transformation"
 
         if "project" in doc_type_lower:
             exec_summary = (
-                "This project plan outlines the end-to-end strategy for deploying an AI customer support chatbot "
-                "within an 8-week delivery timeframe for a 50-person e-commerce company. The initiative focuses on "
-                "deflecting high-volume repetitive queries (order status, returns, and FAQs), accelerating response times, "
-                "and establishing seamless human-agent handoffs while rigorously monitoring resolution rates and CSAT."
+                f"This project plan outlines the end-to-end execution roadmap for {subject_phrase}. "
+                "The initiative establishes clear workstreams, milestone gates, resource ownership, and proactive risk mitigations "
+                "to ensure delivery within the planned schedule while monitoring key operational outcomes."
             )
             sections = [
                 SectionContent(
                     heading="1. Project Scope & Architecture",
                     level=1,
                     body=(
-                        "The scope comprises integrating an AI customer support virtual assistant with the existing "
-                        "e-commerce order management system (OMS) and ticketing platform (e.g., Zendesk/Freshdesk). "
-                        "The initial deployment focuses on automated tier-1 inquiry resolution with strict guardrails."
+                        f"The scope encompasses executing {subject_phrase} across relevant technical, process, and integration boundaries. "
+                        "The primary focus is delivering production-ready capabilities with measurable service quality."
                     ),
                     bullet_points=[
-                        "In-scope: Tier-1 order status lookup, returns/exchange policy triage, and hours/shipping FAQs.",
-                        "In-scope: Safe sentiment-based escalation to human support agents with chat transcript context.",
-                        "Out-of-scope for 8-week launch: Automated refund processing and custom telephony voice bot integration."
+                        f"Core Scope: Delivery of baseline infrastructure and workflows for {subject_phrase}.",
+                        "Core Scope: Quality assurance testing, operational handoff protocols, and user validation.",
+                        "Out-of-Scope: Non-standard custom extensions deferred to subsequent release cycles."
                     ]
                 ),
                 SectionContent(
-                    heading="2. Eight-Week Implementation Roadmap & Milestones",
+                    heading="2. Implementation Roadmap & Milestones",
                     level=1,
-                    body="The 8-week implementation timeline is divided into four distinct phases to ensure continuous validation.",
-                    table_headers=["Phase", "Weeks", "Key Milestones & Deliverables", "Target Gate Criteria"],
+                    body="The phased implementation timeline is divided into distinct stages to ensure continuous validation.",
+                    table_headers=["Phase", "Timeline", "Key Deliverables & Objectives", "Exit Gate Criteria"],
                     table_rows=[
-                        ["Phase 1: Discovery & Architecture", "Weeks 1–2", "Historical FAQ analysis, API integration specs, Vendor shortlist", "Architecture sign-off"],
-                        ["Phase 2: Build & Training", "Weeks 3–4", "Knowledge base ingestion, conversational intent modeling, test harness", "Intent accuracy > 85% in staging"],
-                        ["Phase 3: Integration & Pilot", "Weeks 5–6", "Helpdesk ticketing webhook integration, internal staff pilot testing", "Zero P1 data security defects"],
-                        ["Phase 4: Launch & Optimization", "Weeks 7–8", "Canary launch (20% traffic), full traffic cutover, hypercare monitoring", "CSAT > 85%, deflection > 30%"]
+                        ["Phase 1: Architecture & Scoping", "Weeks 1–2", "Requirements sign-off, system interface specifications", "Architecture approval"],
+                        ["Phase 2: Build & Configuration", "Weeks 3–4", "Core implementation, data modeling, staging testing", "Test pass rate >= 90%"],
+                        ["Phase 3: Integration & Pilot", "Weeks 5–6", "End-to-end workflow verification, pilot cohort validation", "Zero P1 operational blockers"],
+                        ["Phase 4: Launch & Optimization", "Weeks 7–8", "Phased cutover, performance benchmarking, hypercare", "Target SLA metrics achieved"]
                     ]
                 ),
                 SectionContent(
                     heading="3. Roles & Ownership Matrix (RACI)",
                     level=1,
-                    body="Clear role-based ownership is established across technical, operational, and customer support disciplines.",
-                    table_headers=["Role", "Assigned Department", "Key Responsibilities", "RACI Designation"],
+                    body="Clear role-based ownership is established across technical, operational, and organizational disciplines.",
+                    table_headers=["Role", "Functional Department", "Key Responsibilities", "RACI Designation"],
                     table_rows=[
                         ["Project Lead", "Operations / PMO", "Overall timeline governance, resource allocation, steering updates", "Accountable (A)"],
-                        ["Lead AI / Integration Engineer", "Engineering", "API webhooks, LLM prompt engineering, security guardrails", "Responsible (R)"],
-                        ["Customer Support Lead", "Support Operations", "FAQ curation, response validation, escalation guidelines", "Responsible (R)"],
-                        ["Executive Sponsor (COO / Head of CX)", "Executive Leadership", "Budget sign-off, vendor agreement ratification", "Consulted (C)"]
+                        ["Technical Lead", "Engineering / IT", "System architecture, API integration, security and technical standards", "Responsible (R)"],
+                        ["Operational Lead", "Operations / Support", "Workflow definition, user validation, operational acceptance", "Responsible (R)"],
+                        ["Executive Sponsor", "Executive Leadership", "Strategic alignment, milestone sign-off, governance ratification", "Consulted (C)"]
                     ]
                 ),
                 SectionContent(
                     heading="4. Risk Assessment & Mitigation Strategies",
                     level=1,
-                    body="Key risks have been identified alongside proactive mitigation controls and contingency triggers.",
+                    body="Key project risks have been identified alongside proactive mitigation controls and contingency triggers.",
                     table_headers=["Risk Category", "Identified Risk", "Severity", "Proactive Mitigation Strategy"],
                     table_rows=[
-                        ["Model Accuracy", "Hallucinated answers or erroneous policy responses", "High", "Strict Retrieval-Augmented Generation (RAG) tied strictly to official FAQ docs."],
-                        ["System Integration", "Rate limiting or downtime in OMS/Ticketing API", "Medium", "Circuit breakers and graceful fallback to human agent ticket queue."],
-                        ["User Acceptance", "Customer frustration with automated bot flow", "Medium", "One-click 'Transfer to Human' button visible on every bot interaction."]
+                        ["Execution Risk", "Timeline slippage due to integration dependencies", "Medium", "Establish critical path buffers and weekly cross-team dependency reviews."],
+                        ["Technical Risk", "System interface latency or integration failures", "High", "Implement circuit breakers, fallback logging, and integration test coverage."],
+                        ["Operational Adoption", "End-user friction with new workflow processes", "Medium", "Conduct user enablement sessions and maintain direct feedback channels."]
                     ]
                 ),
                 SectionContent(
                     heading="5. Quantifiable Success Metrics & KPIs",
                     level=1,
-                    body="Performance will be assessed against measurable benchmarks during the 30-day post-launch window.",
+                    body="Performance will be assessed against measurable benchmarks during the post-launch evaluation window.",
                     bullet_points=[
-                        "Ticket Deflection Rate: Target >= 35% automated resolution without human touch within 30 days.",
-                        "First Response Time (FRT): Instantaneous (< 5 seconds) for automated conversations.",
-                        "Customer Satisfaction (CSAT): Target >= 85% positive post-chat rating for bot-resolved sessions.",
-                        "Escalation Precision: Target < 10% repeat escalations due to unresolved chatbot misunderstandings."
+                        "Milestone Adherence: Target 100% on-time completion of critical gate criteria.",
+                        "Workflow Deflection / Automation: Target >= 30% operational efficiency gain within 30 days.",
+                        "System Reliability: Target 99.9% uptime during operational evaluation hours.",
+                        "User Satisfaction: Target >= 85% positive satisfaction rating across stakeholders."
                     ]
                 )
             ]
             assumptions = intake.assumptions or [
-                "E-commerce order management system provides standard REST APIs with webhook support.",
-                "Support team has curated FAQ documentation available for knowledge ingestion.",
-                "Initial traffic volume aligns with a 50-person organization (approx. 300–600 inquiries/day)."
+                "Underlying systems and APIs provide standard access and integration interfaces.",
+                "Cross-functional teams have allocated dedicated points of contact for project phases.",
+                "Existing operational documentation is available for workflow onboarding."
             ]
             next_steps = [
-                "Convene project kickoff meeting with engineering and customer support leads.",
-                "Finalize API sandbox credentials for the order management system.",
-                "Commence Week 1 knowledge base extraction and conversation intent cataloging."
+                "Convene formal project kickoff meeting with technical and operational leads.",
+                "Finalize access credentials and environment specifications.",
+                "Commence Phase 1 discovery and technical scoping tasks."
             ]
         else:
             # Proposal Case (Test Case 2)
             exec_summary = (
-                "This business proposal evaluates strategic modernization options for enhancing customer support "
-                "within a resource-constrained operational environment. A structured comparison is presented between "
+                f"This business proposal evaluates strategic deployment options for {subject_phrase} "
+                "within a resource-conscious operational environment. A structured comparison is presented between "
                 "a lightweight, low-risk pilot and a full-scale enterprise rollout. Given the absence of a pre-selected "
-                "vendor or fixed capital expenditure, this document recommends an agile 4-week pilot using proven "
-                "pay-as-you-go AI tooling to validate deflection and CSAT benchmarks before committing to larger investments."
+                "vendor or fixed capital expenditure, this document recommends an agile pilot to validate key performance "
+                "benchmarks before committing to larger investments."
             )
             sections = [
                 SectionContent(
                     heading="1. Problem Statement & Operational Context",
                     level=1,
                     body=(
-                        "Our customer support team operates with limited headcount, leading to elevated response queues "
-                        "during peak traffic hours. While AI automation offers high potential to relieve pressure, executing "
-                        "a premature enterprise rollout without validated ROI poses severe budget and technical risks."
+                        f"Current operational capacity faces increasing demands surrounding {subject_phrase}. "
+                        "While automation and modern tooling offer high potential to relieve pressure, executing a premature "
+                        "large-scale rollout without validated ROI poses severe operational and budget risks."
                     ),
                     bullet_points=[
-                        "Current constraint: Small team facing repetitive, tier-1 questions (order status, returns, hours).",
-                        "Strategic goal: Deflect repetitive inquiries while reserving human agents for high-value interactions.",
+                        "Current constraint: Limited team bandwidth managing repetitive high-volume operational demands.",
+                        "Strategic goal: Modernize core workflows while reserving team capacity for high-value strategic tasks.",
                         "Governance priority: Avoid long-term vendor lock-in or unvalidated upfront software licensing."
                     ]
                 ),
@@ -328,13 +327,13 @@ Return ONLY valid JSON matching this schema:
                     heading="2. Strategic Option Evaluation: Pilot vs. Full Enterprise Rollout",
                     level=1,
                     body="A comparative analysis highlights the cost-risk tradeoffs between an incremental pilot and a full-scale deployment.",
-                    table_headers=["Dimension", "Option A: 4-Week Lightweight Pilot (Recommended)", "Option B: Full Enterprise Rollout"],
+                    table_headers=["Dimension", "Option A: Lightweight Pilot (Recommended)", "Option B: Full Enterprise Rollout"],
                     table_rows=[
-                        ["Implementation Scope", "Top 15 repetitive FAQs & order tracking lookup", "Full omnichannel integration (web, email, voice, CRM)"],
-                        ["Timeline to Value", "3 to 4 weeks to initial production testing", "16 to 24 weeks enterprise implementation cycle"],
-                        ["Upfront Capital Risk", "Low: Pay-as-you-go API consumption / monthly SaaS", "High: Annual licensing commitment & professional services"],
-                        ["Integration Complexity", "Standard webhook or embedded iframe widget", "Deep bespoke multi-system data pipeline"],
-                        ["Vendor Lock-in", "Minimal: Easily migrated or terminated", "Substantial: Long contract commitments"]
+                        ["Implementation Scope", "Top repetitive workflows and core high-frequency scenarios", "Full multi-channel cross-enterprise systems integration"],
+                        ["Timeline to Value", "3 to 4 weeks to initial production validation", "16 to 24 weeks enterprise implementation cycle"],
+                        ["Upfront Capital Risk", "Low: Pay-as-you-go consumption / trial license validation", "High: Annual licensing commitment & professional services"],
+                        ["Integration Complexity", "Standard webhooks and lightweight interface connectors", "Deep bespoke multi-system data pipeline architecture"],
+                        ["Vendor Lock-in", "Minimal: Easily migrated or terminated based on exit criteria", "Substantial: Long contract commitments and capital exposure"]
                     ]
                 ),
                 SectionContent(
@@ -345,10 +344,10 @@ Return ONLY valid JSON matching this schema:
                         "that directly addresses operational bottlenecks with minimal overhead."
                     ),
                     bullet_points=[
-                        "Week 1: Document audit & FAQ extraction from previous customer support tickets.",
-                        "Week 2: Setup lightweight knowledge base connector with strict hallucination guardrails.",
-                        "Week 3: Internal staff testing and prompt calibration with support team feedback.",
-                        "Week 4: Controlled production pilot routing 25% of inbound chat traffic."
+                        "Stage 1: Process audit & baseline workflow extraction from existing operations.",
+                        "Stage 2: Setup lightweight connector sandbox with strict validation guardrails.",
+                        "Stage 3: Internal stakeholder testing and configuration calibration.",
+                        "Stage 4: Controlled production pilot routing a bounded cohort of live traffic."
                     ]
                 ),
                 SectionContent(
@@ -416,10 +415,14 @@ Return ONLY valid JSON matching this schema:
             ))
             score -= 0.3
 
-        # Check for truncated titles (e.g., cut off words, ellipsis, or prompt fragments)
+        # Check for truncated titles (e.g., cut off words, trailing ellipsis, incomplete prepositions/conjunctions)
         title_text = (doc_content.title or "").strip()
-        truncated_suffixes = [" suppo", " custo", " custo...", " impl", "...", " to propose a"]
-        if any(title_text.lower().endswith(s) for s in truncated_suffixes) or len(title_text) > 90:
+        is_truncated = (
+            title_text.endswith("...")
+            or len(title_text) > 90
+            or any(title_text.lower().endswith(f" {w}") for w in ["to", "for", "with", "and", "by", "the", "a", "an", "suppo", "custo", "impl"])
+        )
+        if is_truncated:
             findings.append(QualityFinding(
                 severity=FindingSeverity.ERROR,
                 message=f"Document title appears truncated or excessively long: '{title_text}'.",
