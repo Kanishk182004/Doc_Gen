@@ -79,3 +79,19 @@ class AgentResponse(BaseModel):
     document_url: str
     message: str
 
+class UserRegisterRequest(BaseModel):
+    email: str = Field(..., min_length=3, max_length=120)
+    name: str = Field(..., min_length=1, max_length=100)
+    password: str = Field(..., min_length=6, max_length=100)
+
+class UserLoginRequest(BaseModel):
+    email: str = Field(..., min_length=3, max_length=120)
+    password: str = Field(..., min_length=1, max_length=100)
+
+class GoogleAuthRequest(BaseModel):
+    credential: Optional[str] = None  # Google JWT ID token
+    email: Optional[str] = None
+    name: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+

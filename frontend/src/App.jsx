@@ -35,6 +35,7 @@ import {
 import confetti from 'canvas-confetti';
 import { ParticlesBackground } from './components/ParticlesBackground';
 import { SpotlightCard } from './components/SpotlightCard';
+import { AuthModal } from './components/AuthModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
@@ -155,6 +156,35 @@ export default function App() {
     return localStorage.getItem('scribeai_selected_model') || "openai/gpt-oss-20b";
   });
   const [showConfig, setShowConfig] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // User Authentication State
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('scribeai_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [authToken, setAuthToken] = useState(() => {
+    return localStorage.getItem('scribeai_token') || '';
+  });
+
+  const handleAuthSuccess = (authData) => {
+    setCurrentUser(authData.user);
+    setAuthToken(authData.token);
+    localStorage.setItem('scribeai_user', JSON.stringify(authData.user));
+    localStorage.setItem('scribeai_token', authData.token);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setAuthToken('');
+    localStorage.removeItem('scribeai_user');
+    localStorage.removeItem('scribeai_token');
+  };
 
   // Current active key for whichever provider is currently selected
   const currentApiKey = providerKeys[selectedProvider] || "";
@@ -518,6 +548,83 @@ export default function App() {
             <span>Swagger API</span>
             <ExternalLink size={12} />
           </a>
+
+          {/* User Sign In / Profile Button */}
+          {currentUser ? (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '4px 10px 4px 6px',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)'
+            }}>
+              {currentUser.avatar_url ? (
+                <img
+                  src={currentUser.avatar_url}
+                  alt={currentUser.name}
+                  style={{ width: '24px', height: '24px', borderRadius: '50%' }}
+                />
+              ) : (
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  backgroundColor: '#00f5a0',
+                  color: '#05070a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: '700'
+                }}>
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+              )}
+              <span style={{ fontSize: '12px', fontWeight: '600', color: '#cbd5e1', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {currentUser.name}
+              </span>
+              <button
+                onClick={handleLogout}
+                title="Sign Out"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                  padding: '2px 4px',
+                  fontSize: '11px'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                backgroundColor: '#00f5a0',
+                border: 'none',
+                color: '#05070a',
+                fontSize: '12px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            >
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
       </nav>
 
@@ -1415,6 +1522,14 @@ export default function App() {
 
       </main>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccess}
+        apiBaseUrl={API_BASE_URL}
+      />
     </div>
   );
 }
