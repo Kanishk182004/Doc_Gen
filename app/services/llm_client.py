@@ -14,7 +14,7 @@ PROVIDER_DEFAULT_MODELS = {
     "groq": "openai/gpt-oss-20b",
     "openai": "gpt-4o-mini",
     "anthropic": "claude-3-5-haiku-20241022",
-    "gemini": "gemini-1.5-flash"
+    "gemini": "gemini-2.5-flash"
 }
 
 class LLMClient:

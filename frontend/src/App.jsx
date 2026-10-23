@@ -78,10 +78,11 @@ const PROVIDERS = [
     id: "gemini",
     name: "Google Gemini",
     desc: "Google DeepMind multimodal flash reasoning",
-    defaultModel: "gemini-1.5-flash",
+    defaultModel: "gemini-2.5-flash",
     models: [
-      { id: "gemini-1.5-flash", name: "Gemini 1.5 Flash (Fast)" },
-      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro (Deep reasoning)" }
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash (Current / Recommended)" },
+      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro (Deep reasoning)" },
+      { id: "gemini-flash-latest", name: "Gemini Flash Latest" }
     ],
     placeholder: "AIzaSy..."
   }
