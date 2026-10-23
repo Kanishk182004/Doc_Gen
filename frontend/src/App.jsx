@@ -406,17 +406,19 @@ export default function App() {
       <ParticlesBackground />
 
       {/* Top Cyber Emerald Nav */}
-      <nav style={{
+      <nav className="mobile-padding" style={{
         position: 'sticky',
         top: 0,
         zIndex: 50,
         backgroundColor: 'rgba(5, 7, 10, 0.88)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        padding: '14px 40px',
+        padding: '12px 24px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '10px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{
@@ -436,7 +438,7 @@ export default function App() {
               <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em', color: '#ffffff' }}>
                 SCRIBE<span style={{ background: 'linear-gradient(135deg, #d946ef, #fb923c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>
               </span>
-              <span style={{
+              <span className="mobile-hide" style={{
                 fontSize: '10px',
                 padding: '2px 8px',
                 borderRadius: '9999px',
@@ -449,14 +451,14 @@ export default function App() {
                 MULTI-PROVIDER STUDIO
               </span>
             </div>
-            <span style={{ fontSize: '11px', color: '#64748b' }}>
+            <span className="mobile-hide" style={{ fontSize: '11px', color: '#64748b' }}>
               Plan • Execute • Review • Deliver
             </span>
           </div>
         </div>
 
         {/* Live Provider & Settings Pill */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           
           {/* New Chat Button */}
           <button
@@ -465,7 +467,7 @@ export default function App() {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 14px',
+              padding: '6px 12px',
               borderRadius: '9999px',
               backgroundColor: 'rgba(251, 146, 60, 0.12)',
               border: '1px solid rgba(251, 146, 60, 0.4)',
@@ -475,17 +477,9 @@ export default function App() {
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(251, 146, 60, 0.25)';
-              e.currentTarget.style.transform = 'scale(1.02)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(251, 146, 60, 0.12)';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
           >
             <Plus size={14} />
-            <span>New Chat</span>
+            <span className="mobile-hide">New Chat</span>
           </button>
 
           {/* Toggle Sidebar Button */}
@@ -495,7 +489,7 @@ export default function App() {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 14px',
+              padding: '6px 12px',
               borderRadius: '9999px',
               backgroundColor: sidebarOpen ? 'rgba(251, 146, 60, 0.2)' : 'rgba(10, 13, 17, 0.8)',
               border: `1px solid ${sidebarOpen ? '#fb923c' : 'rgba(255, 255, 255, 0.12)'}`,
@@ -505,15 +499,9 @@ export default function App() {
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#fb923c';
-            }}
-            onMouseLeave={(e) => {
-              if (!sidebarOpen) e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-            }}
           >
             {sidebarOpen ? <PanelLeftClose size={14} /> : <PanelLeft size={14} />}
-            <span>{sidebarOpen ? 'Hide History' : `History (${chatHistory.length})`}</span>
+            <span>{sidebarOpen ? 'Hide' : `History (${chatHistory.length})`}</span>
           </button>
 
           {/* LLM Selector Button */}
@@ -522,42 +510,43 @@ export default function App() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              padding: '6px 14px',
+              gap: '6px',
+              padding: '6px 12px',
               borderRadius: '9999px',
               backgroundColor: showConfig ? 'rgba(251, 146, 60, 0.15)' : 'rgba(10, 13, 17, 0.8)',
               border: `1px solid ${showConfig ? 'rgba(251, 146, 60, 0.5)' : 'rgba(255, 255, 255, 0.1)'}`,
               color: showConfig ? '#fb923c' : '#cbd5e1',
-              fontSize: '12px',
+              fontSize: '11.5px',
               cursor: 'pointer',
               transition: 'all 0.2s'
             }}
           >
-            <SlidersHorizontal size={14} />
-            <span>LLM: <strong>{currentProviderObj.name}</strong> ({selectedModel})</span>
-            <ChevronDown size={13} />
+            <SlidersHorizontal size={13} />
+            <span><strong>{currentProviderObj.name}</strong></span>
+            <ChevronDown size={12} />
           </button>
 
           <a
             href={`${API_BASE_URL}/docs`}
             target="_blank"
             rel="noreferrer"
+            className="mobile-hide"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 14px',
+              padding: '6px 12px',
               borderRadius: '9999px',
               border: '1px solid rgba(251, 146, 60, 0.4)',
               backgroundColor: 'rgba(251, 146, 60, 0.08)',
               color: '#fb923c',
-              fontSize: '12px',
+              fontSize: '11.5px',
               fontWeight: '600',
               textDecoration: 'none'
             }}
           >
-            <span>Swagger API</span>
-            <ExternalLink size={12} />
+            <span>Docs</span>
+            <ExternalLink size={11} />
           </a>
 
           {/* User Sign In / Profile Button */}
@@ -647,12 +636,12 @@ export default function App() {
         zIndex: 10
       }}>
         {/* Gemini-Style Left Sidebar */}
-        <aside style={{
+        <aside className="mobile-sidebar-drawer" style={{
           width: sidebarOpen ? '280px' : '0px',
           minWidth: sidebarOpen ? '280px' : '0px',
-          backgroundColor: 'rgba(7, 10, 15, 0.95)',
-          backdropFilter: 'blur(16px)',
-          borderRight: sidebarOpen ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
+          backgroundColor: 'rgba(7, 5, 9, 0.97)',
+          backdropFilter: 'blur(20px)',
+          borderRight: sidebarOpen ? '1px solid rgba(217, 70, 239, 0.15)' : 'none',
           display: 'flex',
           flexDirection: 'column',
           transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -859,7 +848,7 @@ export default function App() {
         </aside>
 
         {/* Main Content Area */}
-        <main style={{
+        <main className="mobile-padding" style={{
           flex: 1,
           maxWidth: '1200px',
           margin: '0 auto',
@@ -885,7 +874,7 @@ export default function App() {
             <span>Autonomous Document Agent — Multi-Provider Inference</span>
           </div>
 
-          <h1 style={{
+          <h1 className="mobile-hero-title" style={{
             fontSize: '36px',
             fontWeight: '800',
             letterSpacing: '-0.04em',
@@ -919,7 +908,7 @@ export default function App() {
               </div>
 
               {/* Provider Selector Cards */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '18px' }}>
+              <div className="mobile-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '18px' }}>
                 {PROVIDERS.map(p => {
                   const isSelected = selectedProvider === p.id;
                   return (
@@ -947,7 +936,7 @@ export default function App() {
               </div>
 
               {/* Model Dropdown + API Key Input in a clean 2-column row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '14px' }}>
+              <div className="mobile-grid-1" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '14px' }}>
                 
                 {/* Model Selector */}
                 <div>
@@ -1369,13 +1358,14 @@ export default function App() {
                 </div>
               </div>
 
-              <div style={{
+              <div className="mobile-stack" style={{
                 display: 'flex',
                 gap: '24px',
                 marginTop: '20px',
                 paddingTop: '16px',
                 borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                fontSize: '12.5px'
+                fontSize: '12.5px',
+                flexWrap: 'wrap'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <ShieldCheck size={16} color="#fb923c" />

@@ -41,3 +41,48 @@
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, rgba(217, 70, 239, 0.6), rgba(251, 146, 60, 0.6));
 }
+
+/* Mobile & Tablet Responsiveness Utilities */
+@media (max-width: 768px) {
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .mobile-padding {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .mobile-hero-title {
+    font-size: 26px !important;
+  }
+
+  .mobile-sidebar-drawer {
+    position: fixed !important;
+    top: 60px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    height: calc(100vh - 60px) !important;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8) !important;
+    z-index: 999 !important;
+  }
+}
