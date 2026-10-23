@@ -248,15 +248,8 @@ Return ONLY valid JSON matching this schema:
             title = f"{intake.document_type}: {phrase.capitalize()}"
 
         # Fallback Generator: Dynamically adapt content to the actual intake objective and genre
-        subject_phrase = intake.objective.replace(f"{intake.document_type}:", "").strip()
-        # Clean subject_phrase so narrative sentences don't read "roadmap for To create a..."
-        subject_phrase = re.sub(r'^(?:to\s+(?:create|propose|draft|design|develop|build|prepare)\s+(?:a|an)?\s*|to\s+|create\s+(?:a|an)?\s*)', '', subject_phrase, flags=re.IGNORECASE).strip()
-        if subject_phrase.endswith("..."):
-            subject_phrase = subject_phrase[:-3].strip()
-        words_sub = subject_phrase.split()
-        while words_sub and words_sub[-1].lower() in dangling_prepositions:
-            words_sub.pop()
-        subject_phrase = ' '.join(words_sub).strip()
+        from app.agent.planner import clean_title_phrase
+        subject_phrase = clean_title_phrase(intake.objective, max_chars=80)
         if not subject_phrase:
             subject_phrase = "Operational Transformation"
 

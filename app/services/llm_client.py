@@ -48,10 +48,14 @@ class LLMClient:
         messages: list,
         temperature: float = 0.2,
         response_format: Optional[dict] = None,
+        max_tokens: Optional[int] = None,
         timeout: float = 40.0
     ) -> Optional[str]:
         if not self.is_available:
             return None
+
+        # Safe default max_tokens to prevent LLM generation from being preemptively throttled by API TPM limits
+        effective_max_tokens = max_tokens or (2500 if self.provider == "groq" else 4096)
 
         try:
             with httpx.Client(timeout=timeout) as client:
@@ -64,7 +68,8 @@ class LLMClient:
                     payload = {
                         "model": self.model,
                         "messages": messages,
-                        "temperature": temperature
+                        "temperature": temperature,
+                        "max_tokens": effective_max_tokens
                     }
                     if response_format:
                         payload["response_format"] = response_format

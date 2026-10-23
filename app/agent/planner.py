@@ -7,22 +7,30 @@ from app.services.llm_client import LLMClient
 logger = logging.getLogger("autonomous_agent.planner")
 
 def clean_title_phrase(text: str, max_chars: int = 70) -> str:
-    """Produces clean, professional, untruncated title phrases without dangling words."""
-    # 1. Strip conversational/prompt prefixes
+    """Produces clean, professional, untruncated subject/topic phrases without conversational cruft or dangling words."""
+    # 1. Strip conversational/prompt imperative prefixes
     clean = re.sub(
-        r'^(?:to\s+(?:create|propose|draft|design|develop|build|prepare|author)\s+(?:a|an)?\s*|to\s+|create\s+(?:a|an)?\s*|propose\s+(?:a|an)?\s*|draft\s+(?:a|an)?\s*|design\s+(?:a|an)?\s*|prepare\s+(?:a|an)?\s*)',
+        r'^(?:to\s+(?:create|propose|draft|design|develop|build|prepare|author)\s+(?:a|an)?\s*|to\s+|create\s+(?:a|an)?\s*|propose\s+(?:a|an)?\s*|draft\s+(?:a|an)?\s*|design\s+(?:a|an)?\s*|prepare\s+(?:a|an)?\s*|develop\s+(?:a|an)?\s*)',
         '',
         text.strip(),
         flags=re.IGNORECASE
     ).strip()
+    # 2. Strip leading document genre descriptors (e.g. "a detailed project plan to launch")
+    clean = re.sub(
+        r'^(?:(?:a|an|the)\s+)?(?:comprehensive\s+|detailed\s+|thorough\s+|complete\s+)?(?:8-week\s+|multi-week\s+)?(?:project\s+plan|proposal|strategy|document|roadmap|architecture|sop)\s+(?:for\s+(?:the\s+)?(?:launch\s+of\s+(?:an?\s+)?)?|to\s+launch\s+(?:an?\s+)?|for\s+|to\s+)?',
+        '',
+        clean,
+        flags=re.IGNORECASE
+    ).strip()
+    clean = re.sub(r'^(?:a|an|the)\s+', '', clean, flags=re.IGNORECASE).strip()
     
-    # 2. Accumulate whole words up to max_chars
+    # 3. Accumulate whole words up to max_chars
     words = clean.split()
     accumulated = []
     current_len = 0
     dangling = {
         'to', 'for', 'with', 'and', 'by', 'the', 'a', 'an', 'of', 'in', 'on', 'from',
-        'at', 'into', 'as', 'about', 'over', 'under', 'through', 'using', 'launch'
+        'at', 'into', 'as', 'about', 'over', 'under', 'through', 'using', 'launch', 'customer'
     }
     for w in words:
         if current_len + len(w) + (1 if accumulated else 0) <= max_chars:
@@ -31,7 +39,7 @@ def clean_title_phrase(text: str, max_chars: int = 70) -> str:
         else:
             break
             
-    # 3. Strip any dangling prepositions/articles or cut-off words at the end
+    # 4. Strip any dangling prepositions/articles or cut-off words at the end
     while accumulated and (
         accumulated[-1].lower() in dangling
         or accumulated[-1].endswith('-')
