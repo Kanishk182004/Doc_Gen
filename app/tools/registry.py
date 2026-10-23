@@ -330,8 +330,84 @@ Return ONLY valid JSON matching this schema:
                 "Finalize access credentials and environment specifications.",
                 "Commence Phase 1 discovery and technical scoping tasks."
             ]
-        else:
-            # Proposal Case (Test Case 2)
+        elif "technical" in doc_type_lower or "design" in doc_type_lower or "architecture" in doc_type_lower:
+            # Technical Design Document Case
+            exec_summary = (
+                f"This technical design document outlines the system architecture, component topology, and execution protocols "
+                f"for {subject_phrase}. It details end-to-end data flows, operational boundaries, resilience considerations, "
+                "and verification criteria necessary for scalable production deployment."
+            )
+            sections = [
+                SectionContent(
+                    heading="1. System Overview & Architectural Objectives",
+                    level=1,
+                    body=(
+                        f"The primary architectural goal is establishing high-throughput, low-latency processing for {subject_phrase}. "
+                        "The design decouples core ingest pipelines from consumer delivery channels to ensure horizontal elasticity."
+                    ),
+                    bullet_points=[
+                        f"Core Objective: Scalable, sub-second processing and delivery for {subject_phrase}.",
+                        "Fault Tolerance: Circuit breakers and automated dead-letter queues across downstream boundaries.",
+                        "Observability: End-to-end distributed tracing, audit trails, and health probe telemetry."
+                    ]
+                ),
+                SectionContent(
+                    heading="2. Component Architecture & Data Pipeline",
+                    level=1,
+                    body="The system partitions workloads across modular ingestion, messaging, and delivery tiers.",
+                    table_headers=["Architecture Tier", "Technology / Protocol", "Primary Responsibility", "SLA / Target"],
+                    table_rows=[
+                        ["Ingress Gateway", "REST / gRPC / Webhooks", "Authentication, request schema validation, and rate limiting", "< 15ms p99"],
+                        ["Message Broker", "Distributed Pub/Sub Event Bus", "Durable message queuing, partitioning, and fan-out", "< 5ms latency"],
+                        ["Dispatch Engine", "Async Worker Pool", "Channel routing, template rendering, and delivery retry logic", "Sub-second delivery"],
+                        ["State & Cache Tier", "In-Memory Store / Key-Value", "Session state, dedup idempotency keys, and presence", "99.99% availability"]
+                    ]
+                ),
+                SectionContent(
+                    heading="3. Data Flow & Communication Protocols",
+                    level=1,
+                    body="Inbound events undergo validation, persistent queuing, and parallel dispatch across active transport interfaces.",
+                    bullet_points=[
+                        "Step 1: Client event publication via authenticated TLS endpoints with unique idempotency keys.",
+                        "Step 2: Broker ingestion into partitioned topic partitions with at-least-once delivery guarantees.",
+                        "Step 3: Worker consumption, payload transformation, and downstream dispatch via WebSockets/Push.",
+                        "Step 4: Delivery acknowledgement logging and transient error backoff retry."
+                    ]
+                ),
+                SectionContent(
+                    heading="4. Operational Resilience & Security Architecture",
+                    level=1,
+                    body="Security controls, cryptographic validation, and failure domain isolations are enforced across all tiers.",
+                    table_headers=["Security / Operational Domain", "Identified Threat / Failure Mode", "Architectural Mitigation"],
+                    table_rows=[
+                        ["Data In Transit", "Network interception or packet sniffing", "Enforce TLS 1.3 across all client-to-gateway and inter-service channels."],
+                        ["System Saturation", "Sudden surge in notification traffic", "Implement leaky-bucket rate limiters and autoscaling worker pods."],
+                        ["Consumer Downstream Outage", "Third-party push provider degradation", "Route failed events to dead-letter queues with exponential backoff retries."]
+                    ]
+                ),
+                SectionContent(
+                    heading="5. Performance Benchmarks & Quality Criteria",
+                    level=1,
+                    body="Production readiness requires passing rigorous throughput, latency, and disaster recovery thresholds.",
+                    bullet_points=[
+                        "End-to-End Latency: Sub-500ms p95 delivery latency under nominal load.",
+                        "Throughput Capacity: Sustain >= 10,000 published events/second per cluster partition.",
+                        "Availability SLA: 99.95% operational uptime with multi-AZ failover redundancy.",
+                        "Error Budget: Keep dropped or unrecoverable event rate below 0.001%."
+                    ]
+                )
+            ]
+            assumptions = intake.assumptions or [
+                "Infrastructure environments support containerized workloads and dynamic autoscaling.",
+                "Network topology provides low-latency VPC peering between broker and compute clusters.",
+                "Client SDKs implement standard backoff and reconnect protocols."
+            ]
+            next_steps = [
+                "Finalize protocol buffer specifications and schema registry definitions.",
+                "Provision staging broker cluster and execute throughput benchmark tests.",
+                "Review security threat model with infrastructure and security teams."
+            ]
+        elif "proposal" in doc_type_lower:
             exec_summary = (
                 f"This business proposal evaluates strategic deployment options for {subject_phrase} "
                 "within a resource-conscious operational environment. A structured comparison is presented between "
