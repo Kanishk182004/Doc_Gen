@@ -62,73 +62,74 @@ Return ONLY valid JSON matching this schema:
             data["assumptions"] = clean_assumptions
             return DocumentIntake(**data)
 
-        # Robust heuristic fallback parser
+        # Generic deterministic fallback parser (only engaged if LLM API is unavailable)
         req_lower = user_request.lower()
-        if "proposal" in req_lower:
-            doc_type = "Business Proposal"
-            audience = "Executive Leadership / Budget Approvers"
-            assumptions = [
-                "No exact budget or vendor pricing has been assumed. Implementation timelines are planning estimates and must be validated against vendor capabilities, internal resources, and pilot requirements.",
-                "Budget is limited and requires a low-risk phased commitment.",
-                "No specific AI vendor has been pre-selected; comparison is required.",
-                "Success metrics and milestones are illustrative proposals pending pilot sign-off."
-            ]
-        elif "project plan" in req_lower or "plan" in req_lower:
-            doc_type = "Project Plan"
-            audience = "Project Team, Engineering & CX Stakeholders"
-            assumptions = [
-                "Implementation duration is bounded to the specified timeframe (e.g. 8 weeks).",
-                "Existing support tools offer integration hooks or REST APIs.",
-                "Dedicated role ownership will be staffed internally."
-            ]
-        elif "technical" in req_lower or "design" in req_lower:
-            doc_type = "Technical Design Document"
-            audience = "Engineering and Architecture Teams"
-            assumptions = [
-                "Standard cloud infrastructure and containerized services are utilized.",
-                "Security and data privacy standards comply with industry baselines."
-            ]
-        elif "meeting" in req_lower or "minutes" in req_lower:
-            doc_type = "Meeting Minutes"
-            audience = "Meeting Participants & Department Leads"
-            assumptions = [
-                "Attendees and action items reflect the agenda items provided.",
-                "Unspecified decisions are documented as open discussion points."
-            ]
-        else:
-            doc_type = "Business Report"
-            audience = "Organizational Stakeholders"
-            assumptions = [
-                "Standard corporate reporting structure is applicable.",
-                "Key performance metrics are proposed for ongoing review."
-            ]
 
-        # Extract potential constraints
+        # 1. Generic Document Type Identification
+        genre_map = {
+            "proposal": ("Business Proposal", "Executive Leadership & Decision Makers"),
+            "plan": ("Project Plan", "Project Delivery Team & Key Stakeholders"),
+            "technical": ("Technical Design Document", "Engineering & Architecture Teams"),
+            "design": ("Technical Design Document", "Engineering & Architecture Teams"),
+            "architecture": ("Technical Design Document", "Engineering & Architecture Teams"),
+            "minutes": ("Meeting Minutes", "Meeting Attendees & Department Leads"),
+            "sop": ("Standard Operating Procedure", "Operations & Process Execution Team"),
+            "procedure": ("Standard Operating Procedure", "Operations & Process Execution Team"),
+            "specification": ("Product Specification", "Product & Engineering Teams"),
+            "spec": ("Product Specification", "Product & Engineering Teams"),
+            "report": ("Business Report", "Organizational Leadership & Stakeholders"),
+        }
+        doc_type, audience = ("Business Document", "Organizational Stakeholders")
+        for keyword, (mapped_type, mapped_aud) in genre_map.items():
+            if keyword in req_lower:
+                doc_type, audience = mapped_type, mapped_aud
+                break
+
+        # 2. Generic Dynamic Constraint Extraction (extracts timeframes, negative constraints, budgets)
         constraints = []
-        if "8 week" in req_lower or "eight week" in req_lower:
-            constraints.append("8-week delivery timeframe")
-        if "limited budget" in req_lower or "small team" in req_lower:
-            constraints.append("Resource constraints: Small team with limited budget")
-        if "no vendor" in req_lower or "not chosen a vendor" in req_lower or "without inventing exact costs" in req_lower or "do not invent exact costs" in req_lower:
-            constraints.append("Pricing and vendor unconfirmed: Do not invent exact costs or vendor selections")
+        # Match time boundaries dynamically (e.g., "within 8 weeks", "in 3 months", "14 days")
+        time_matches = re.findall(r"\b(?:within|in|over)?\s*(\d+\s*(?:day|week|month|year|hr|hour)s?)\b", req_lower)
+        for tm in set(time_matches):
+            constraints.append(f"Time constraint: Delivery bounded to {tm}")
 
-        # Form a concise, clean objective rather than a truncated prompt slice
-        clean_objective = "General Business Initiative"
-        if "customer support" in req_lower and "proposal" in req_lower:
-            clean_objective = "Improving Customer Support with AI"
-        elif "customer support" in req_lower and "project" in req_lower:
-            clean_objective = "AI Customer Support Chatbot Implementation"
-        elif "support" in req_lower:
-            clean_objective = "Customer Support Optimization"
+        # Match negative instructions or budget cautions dynamically
+        neg_matches = re.findall(r"\b(?:without|do not|don't|no|never|limit\w*)\s+([^,.;]+)", req_lower)
+        for nm in neg_matches:
+            cleaned = nm.strip()
+            if cleaned:
+                constraints.append(f"Operational constraint: {cleaned.capitalize()}")
+
+        # 3. Generic Governance Assumptions
+        assumptions = [
+            "Implementation timelines are planning estimates subject to baseline verification.",
+            "Resource allocations and dependencies are to be confirmed with respective stakeholders."
+        ]
+        if "proposal" in doc_type.lower():
+            assumptions.insert(
+                0,
+                "No exact budget or vendor pricing has been assumed. Implementation timelines are planning "
+                "estimates and must be validated against vendor capabilities, internal resources, and pilot requirements."
+            )
+            assumptions.append("Success metrics and milestones are illustrative proposals pending pilot sign-off.")
+        elif "project" in doc_type.lower():
+            assumptions.append("Underlying operational tools and APIs are assumed accessible for integration.")
+            assumptions.append("Role assignments follow standard RACI governance.")
+
+        # 4. Clean Dynamic Title Generation
+        clean_prompt = user_request.strip().split(".")[0].strip()
+        for prefix in ["create a ", "create an ", "prepare a ", "prepare an ", "draft a ", "draft an ", "build a ", "build an ", "design a ", "design an "]:
+            if clean_prompt.lower().startswith(prefix):
+                clean_prompt = clean_prompt[len(prefix):].strip()
+                break
+        
+        # Keep title concise and well-formed
+        if len(clean_prompt) > 65:
+            clean_title = f"{doc_type}: {clean_prompt[:60].strip()}..."
         else:
-            first_sentence = user_request.strip().split(".")[0].strip()
-            for prefix in ["create a ", "prepare a ", "draft a ", "build a ", "design a "]:
-                if first_sentence.lower().startswith(prefix):
-                    first_sentence = first_sentence[len(prefix):].strip()
-            clean_objective = first_sentence[:60].strip()
+            clean_title = f"{doc_type}: {clean_prompt.capitalize()}"
 
         return DocumentIntake(
-            objective=clean_objective,
+            objective=clean_title,
             document_type=doc_type,
             target_audience=audience,
             constraints=constraints,
