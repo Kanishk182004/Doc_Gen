@@ -4,7 +4,7 @@ import os
 
 class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "qwen/qwen3.8-27b"
+    GROQ_MODEL: str = "openai/gpt-oss-20b"
     GENERATED_DOCS_DIR: Path = Path("generated_docs")
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8000

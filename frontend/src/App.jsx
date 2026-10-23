@@ -42,12 +42,12 @@ const PROVIDERS = [
   {
     id: "groq",
     name: "Groq",
-    desc: "Ultra-fast LPU inference (Free tier supported)",
-    defaultModel: "qwen/qwen3.8-27b",
+    desc: "Ultra-fast LPU inference (Active Free Tier / Fresh Quota)",
+    defaultModel: "openai/gpt-oss-20b",
     models: [
-      { id: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B (Active Free Tier / Fresh Quota - Recommended)" },
-      { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B (High Capacity / 8k TPM)" },
-      { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B (Fast / 8k TPM)" }
+      { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B (High Capacity / Active Quota - Recommended)" },
+      { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B (Deep Reasoning)" },
+      { id: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B (1k OTPM)" }
     ],
     placeholder: "gsk_..."
   },
@@ -137,7 +137,7 @@ export default function App() {
     return localStorage.getItem('scribeai_user_api_key') || "";
   });
   const [selectedModel, setSelectedModel] = useState(() => {
-    return localStorage.getItem('scribeai_selected_model') || "qwen/qwen3.8-27b";
+    return localStorage.getItem('scribeai_selected_model') || "openai/gpt-oss-20b";
   });
   const [showConfig, setShowConfig] = useState(false);
 

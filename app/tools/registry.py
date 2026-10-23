@@ -65,8 +65,12 @@ Return ONLY valid JSON matching this schema:
 }}
 """
         response_text = self.llm.chat_completion(
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2
+            messages=[
+                {"role": "system", "content": "You are an expert document architect. You always reply with valid JSON strictly adhering to the requested schema."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            response_format={"type": "json_object"} if self.llm.provider in ["groq", "openai"] else None
         )
         data = self.llm.extract_json(response_text) if response_text else None
         if data and "required_sections" in data:
@@ -151,11 +155,10 @@ Approved Outline: {outline}
 GUIDELINES:
 1. NEVER invent confirmed prices, specific dollar budgets, vendor agreements, or stakeholder decisions. If unknown, treat as proposed, use qualitative budget guardrails (e.g. pay-as-you-go or capped tiers), and recommend obtaining vendor quotes.
 2. If numerical examples are genuinely useful, clearly label them as hypothetical illustrations and do NOT present them as company-specific commitments.
-3. For Project Plans: Include milestone tables, risk tables, roles, and measurable KPIs.
-4. For Proposals: Provide an in-depth comparison table between options (e.g., Pilot vs Full Rollout), risks, and proposed metrics. Clearly label suggested targets as proposed targets, not measured results, and include an explicit disclaimer in the section body stating: "The pilot's success will be evaluated against illustrative proposed targets (not measured results, verified benchmarks, or guaranteed outcomes). Leadership must review, baseline, and formally approve or adjust these targets after reviewing initial pilot observations."
-5. Assumptions: In the assumptions list, if no pricing is confirmed, explicitly include: "No exact budget or vendor pricing has been assumed. Implementation timelines are planning estimates and must be validated against vendor capabilities, internal resources, and pilot requirements." Do NOT invent or assume budget ranges.
+3. For Project Plans & Proposals: Write customized, in-depth sections matching the exact request topic. Include tables for milestones, risks, and roles.
+4. Keep the output concise and strictly complete. Do not exceed 2500 tokens.
 
-Return ONLY valid JSON matching this schema:
+Return ONLY a complete, valid JSON object matching this schema:
 {{
   "title": "Full Document Title",
   "subtitle": "Subtitle",
@@ -169,8 +172,7 @@ Return ONLY valid JSON matching this schema:
       "bullet_points": ["Key point 1", "Key point 2"],
       "table_headers": ["Column 1", "Column 2", "Column 3"],
       "table_rows": [
-        ["Row 1 Col 1", "Row 1 Col 2", "Row 1 Col 3"],
-        ["Row 2 Col 1", "Row 2 Col 2", "Row 2 Col 3"]
+        ["Row 1 Col 1", "Row 1 Col 2", "Row 1 Col 3"]
       ]
     }}
   ],
@@ -179,8 +181,12 @@ Return ONLY valid JSON matching this schema:
 }}
 """
         response_text = self.llm.chat_completion(
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.25
+            messages=[
+                {"role": "system", "content": "You are an expert executive document writer. You always reply with valid JSON strictly adhering to the requested schema, with no conversational filler or markdown introduction."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            response_format={"type": "json_object"} if self.llm.provider in ["groq", "openai"] else None
         )
         data = self.llm.extract_json(response_text) if response_text else None
         doc_type_lower = intake.document_type.lower()

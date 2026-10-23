@@ -11,7 +11,7 @@ logger = logging.getLogger("autonomous_agent.llm")
 T = TypeVar("T", bound=BaseModel)
 
 PROVIDER_DEFAULT_MODELS = {
-    "groq": "qwen/qwen3.8-27b",
+    "groq": "openai/gpt-oss-20b",
     "openai": "gpt-4o-mini",
     "anthropic": "claude-3-5-haiku-20241022",
     "gemini": "gemini-1.5-flash"
@@ -54,8 +54,17 @@ class LLMClient:
         if not self.is_available:
             return None
 
-        # Safe default max_tokens to prevent LLM generation from being preemptively throttled by API TPM limits
-        effective_max_tokens = max_tokens or (1500 if self.provider == "groq" else 4096)
+        # Safe default max_tokens:
+        if max_tokens:
+            effective_max_tokens = max_tokens
+        elif self.provider == "groq" and "qwen" in self.model:
+            effective_max_tokens = 950
+        elif self.provider == "groq" and "20b" in self.model:
+            effective_max_tokens = 3000
+        elif self.provider == "groq":
+            effective_max_tokens = 2000
+        else:
+            effective_max_tokens = 4096
 
         max_retries = 3
         backoff_seconds = 2.0
