@@ -156,7 +156,7 @@ GUIDELINES:
 1. NEVER invent confirmed prices, specific dollar budgets, vendor agreements, or stakeholder decisions. If unknown, treat as proposed, use qualitative budget guardrails (e.g. pay-as-you-go or capped tiers), and recommend obtaining vendor quotes.
 2. If numerical examples are genuinely useful, clearly label them as hypothetical illustrations and do NOT present them as company-specific commitments.
 3. For Project Plans & Proposals: Write customized, in-depth sections matching the exact request topic. Include tables for milestones, risks, and roles.
-4. Keep the output concise and strictly complete. Do not exceed 2500 tokens.
+4. Keep the output concise and structured. Generate exactly 5 to 7 high-impact, comprehensive sections matching the outline.
 
 Return ONLY a complete, valid JSON object matching this schema:
 {{

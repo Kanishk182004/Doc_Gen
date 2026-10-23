@@ -49,7 +49,7 @@ class LLMClient:
         temperature: float = 0.2,
         response_format: Optional[dict] = None,
         max_tokens: Optional[int] = None,
-        timeout: float = 40.0
+        timeout: float = 90.0
     ) -> Optional[str]:
         if not self.is_available:
             return None
