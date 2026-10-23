@@ -6,7 +6,7 @@ from app.services.llm_client import LLMClient
 
 logger = logging.getLogger("autonomous_agent.planner")
 
-def clean_title_phrase(text: str, max_chars: int = 70) -> str:
+def clean_title_phrase(text: str, max_chars: int = 80) -> str:
     """Produces clean, professional, untruncated subject/topic phrases without conversational cruft or dangling words."""
     # 1. Strip conversational/prompt imperative prefixes
     clean = re.sub(
@@ -15,9 +15,9 @@ def clean_title_phrase(text: str, max_chars: int = 70) -> str:
         text.strip(),
         flags=re.IGNORECASE
     ).strip()
-    # 2. Strip leading document genre descriptors (e.g. "a detailed project plan to launch")
+    # 2. Strip leading document genre descriptors (e.g. "a detailed project plan to launch", "Technical Design Document for")
     clean = re.sub(
-        r'^(?:(?:a|an|the)\s+)?(?:comprehensive\s+|detailed\s+|thorough\s+|complete\s+)?(?:8-week\s+|multi-week\s+)?(?:project\s+plan|proposal|strategy|document|roadmap|architecture|sop)\s+(?:for\s+(?:the\s+)?(?:launch\s+of\s+(?:an?\s+)?)?|to\s+launch\s+(?:an?\s+)?|for\s+|to\s+)?',
+        r'^(?:(?:a|an|the)\s+)?(?:comprehensive\s+|detailed\s+|thorough\s+|complete\s+)?(?:8-week\s+|multi-week\s+)?(?:project\s+plan|business\s+proposal|proposal|strategy|technical\s+design\s+document|technical\s+design|architecture\s+document|document|roadmap|architecture|sop)\s+(?:for\s+(?:the\s+)?(?:launch\s+of\s+(?:an?\s+)?)?|to\s+launch\s+(?:an?\s+)?|for\s+|to\s+|on\s+|about\s+)?',
         '',
         clean,
         flags=re.IGNORECASE
@@ -30,7 +30,8 @@ def clean_title_phrase(text: str, max_chars: int = 70) -> str:
     current_len = 0
     dangling = {
         'to', 'for', 'with', 'and', 'by', 'the', 'a', 'an', 'of', 'in', 'on', 'from',
-        'at', 'into', 'as', 'about', 'over', 'under', 'through', 'using', 'launch', 'customer'
+        'at', 'into', 'as', 'about', 'over', 'under', 'through', 'using', 'launch',
+        'customer', 'limited', 'small', 'e-commerce', 'ecommerce'
     }
     for w in words:
         if current_len + len(w) + (1 if accumulated else 0) <= max_chars:
@@ -40,7 +41,6 @@ def clean_title_phrase(text: str, max_chars: int = 70) -> str:
             break
             
     # 4. Strip any dangling prepositions/articles or cut-off words at the end
-    dangling.update({'e-commerce', 'ecommerce', 'a', 'an', 'the'})
     while accumulated and (
         accumulated[-1].lower() in dangling
         or accumulated[-1].endswith('-')
@@ -164,7 +164,7 @@ Return ONLY valid JSON matching this schema:
             assumptions.append("Role assignments follow standard RACI governance.")
 
         # 4. Clean Dynamic Title Generation
-        clean_phrase = clean_title_phrase(user_request, max_chars=60)
+        clean_phrase = clean_title_phrase(user_request, max_chars=80)
         clean_title = f"{doc_type}: {clean_phrase.capitalize()}"
 
         return DocumentIntake(
