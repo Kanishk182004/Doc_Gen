@@ -8,11 +8,20 @@ logger = logging.getLogger("autonomous_agent.planner")
 
 def clean_title_phrase(text: str, max_chars: int = 80) -> str:
     """Produces clean, professional, untruncated subject/topic phrases without conversational cruft or dangling words."""
+    clean = text.strip()
+    # 0. Strip any leading genre colon prefixes like 'Business Proposal:' or 'Project Plan:'
+    clean = re.sub(
+        r'^(?:business\s+proposal|project\s+plan|technical\s+design\s+document|technical\s+design|business\s+report|standard\s+operating\s+procedure|meeting\s+minutes|business\s+document)\s*[:\-]\s*',
+        '',
+        clean,
+        flags=re.IGNORECASE
+    ).strip()
+
     # 1. Strip conversational/prompt imperative prefixes
     clean = re.sub(
         r'^(?:to\s+(?:create|propose|draft|design|develop|build|prepare|author)\s+(?:a|an)?\s*|to\s+|create\s+(?:a|an)?\s*|propose\s+(?:a|an)?\s*|draft\s+(?:a|an)?\s*|design\s+(?:a|an)?\s*|prepare\s+(?:a|an)?\s*|develop\s+(?:a|an)?\s*)',
         '',
-        text.strip(),
+        clean,
         flags=re.IGNORECASE
     ).strip()
     # 2. Strip leading document genre descriptors (e.g. "a detailed project plan to launch", "Technical Design Document for")
