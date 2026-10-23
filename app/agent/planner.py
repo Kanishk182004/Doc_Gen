@@ -40,12 +40,17 @@ def clean_title_phrase(text: str, max_chars: int = 70) -> str:
             break
             
     # 4. Strip any dangling prepositions/articles or cut-off words at the end
+    dangling.update({'e-commerce', 'ecommerce', 'a', 'an', 'the'})
     while accumulated and (
         accumulated[-1].lower() in dangling
         or accumulated[-1].endswith('-')
         or accumulated[-1].endswith('...')
         or len(accumulated[-1]) <= 2
+        or re.match(r'^\d+-(?:person|member|team|day|week)s?$', accumulated[-1].lower())
     ):
+        accumulated.pop()
+
+    while accumulated and accumulated[-1].lower() in {'for', 'a', 'an', 'the', 'at', 'with', 'in', 'on', 'of'}:
         accumulated.pop()
         
     result = ' '.join(accumulated).strip()
