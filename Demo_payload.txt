@@ -1,0 +1,7 @@
+{
+  "request": "Create a project plan for launching an AI-powered customer support chatbot for a 50-person e-commerce company within 8 weeks. Include project phases, milestones, risks, owners, and success metrics. Generate a professional DOCX document."
+}
+
+{
+  "request": "Prepare a proposal for improving customer support at a small company with a limited budget. We want to use AI but have not chosen a vendor or defined success metrics. Make reasonable assumptions and label them clearly, compare a lightweight pilot with a full rollout, identify risks, recommend next steps, and do not invent exact costs."
+}
