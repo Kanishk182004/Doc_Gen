@@ -258,9 +258,18 @@ Return ONLY valid JSON matching this schema:
 
         # Fallback Generator: Dynamically adapt content to the actual intake objective and genre
         from app.agent.planner import clean_title_phrase
-        subject_phrase = clean_title_phrase(intake.objective, max_chars=80)
-        if not subject_phrase:
-            subject_phrase = "Operational Transformation"
+        raw_phrase = clean_title_phrase(intake.objective, max_chars=80)
+        if not raw_phrase:
+            raw_phrase = "operational transformation"
+
+        # Grammatical article prefixing helper (e.g., 'a distributed notification engine', 'an AI customer chatbot')
+        def with_article(p: str) -> str:
+            p_str = p.strip()
+            if not p_str or p_str.lower().startswith(('a ', 'an ', 'the ')):
+                return p_str
+            return f"an {p_str}" if p_str[0].lower() in ('a', 'e', 'i', 'o', 'u') else f"a {p_str}"
+
+        subject_phrase = with_article(raw_phrase)
 
         if "project" in doc_type_lower:
             exec_summary = (
