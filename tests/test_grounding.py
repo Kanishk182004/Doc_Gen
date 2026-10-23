@@ -88,7 +88,7 @@ def test_quality_review_detects_truncated_title():
         assumptions=[]
     )
     doc_content = DocumentContent(
-        title="Business Proposal: To propose a strategy for enhancing customer suppo",
+        title="Business Proposal: Strategy for Enhancing Performance with",  # Ends abruptly on dangling preposition 'with'
         document_type="Business Proposal",
         executive_summary="This executive summary covers our strategy to pilot automated AI tools.",
         sections=[

@@ -213,8 +213,9 @@ Return ONLY valid JSON matching this schema:
         subtitle = outline.get("subtitle", f"Audience: {intake.target_audience}")
 
         # Ensure title is not truncated or excessively long
-        if "..." in title or len(title) > 85 or any(title.lower().endswith(f" {w}") for w in ["to", "for", "with", "and", "by", "the", "a", "an", "suppo", "custo", "impl"]):
-            clean_obj = intake.objective.split(":")[ -1].strip() if ":" in intake.objective else intake.objective
+        dangling_prepositions = ["to", "for", "with", "and", "by", "the", "a", "an", "of", "in", "on", "from"]
+        if "..." in title or len(title) > 85 or any(title.lower().endswith(f" {w}") for w in dangling_prepositions):
+            clean_obj = intake.objective.split(":")[-1].strip() if ":" in intake.objective else intake.objective
             title = f"{intake.document_type}: {clean_obj[:55].strip()}"
 
         # Fallback Generator: Dynamically adapt content to the actual intake objective and genre
@@ -415,12 +416,13 @@ Return ONLY valid JSON matching this schema:
             ))
             score -= 0.3
 
-        # Check for truncated titles (e.g., cut off words, trailing ellipsis, incomplete prepositions/conjunctions)
+        # Check for truncated titles (trailing ellipsis, excessive length, or hanging prepositions/articles)
         title_text = (doc_content.title or "").strip()
+        dangling_prepositions = ["to", "for", "with", "and", "by", "the", "a", "an", "of", "in", "on", "from"]
         is_truncated = (
             title_text.endswith("...")
             or len(title_text) > 90
-            or any(title_text.lower().endswith(f" {w}") for w in ["to", "for", "with", "and", "by", "the", "a", "an", "suppo", "custo", "impl"])
+            or any(title_text.lower().endswith(f" {w}") for w in dangling_prepositions)
         )
         if is_truncated:
             findings.append(QualityFinding(
