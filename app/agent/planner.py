@@ -31,7 +31,8 @@ def clean_title_phrase(text: str, max_chars: int = 80) -> str:
     dangling = {
         'to', 'for', 'with', 'and', 'by', 'the', 'a', 'an', 'of', 'in', 'on', 'from',
         'at', 'into', 'as', 'about', 'over', 'under', 'through', 'using', 'launch',
-        'customer', 'limited', 'small', 'e-commerce', 'ecommerce'
+        'customer', 'limited', 'small', 'e-commerce', 'ecommerce', 'while', 'when',
+        'where', 'which', 'that', 'who', 'operating', 'maintaining'
     }
     for w in words:
         if current_len + len(w) + (1 if accumulated else 0) <= max_chars:
@@ -40,7 +41,7 @@ def clean_title_phrase(text: str, max_chars: int = 80) -> str:
         else:
             break
             
-    # 4. Strip any dangling prepositions/articles or cut-off words at the end
+    # 4. Strip any dangling prepositions/conjunctions/articles or cut-off words at the end
     while accumulated and (
         accumulated[-1].lower() in dangling
         or accumulated[-1].endswith('-')
@@ -50,7 +51,7 @@ def clean_title_phrase(text: str, max_chars: int = 80) -> str:
     ):
         accumulated.pop()
 
-    while accumulated and accumulated[-1].lower() in {'for', 'a', 'an', 'the', 'at', 'with', 'in', 'on', 'of'}:
+    while accumulated and accumulated[-1].lower() in {'for', 'a', 'an', 'the', 'at', 'with', 'in', 'on', 'of', 'and', 'while'}:
         accumulated.pop()
         
     result = ' '.join(accumulated).strip()
@@ -93,8 +94,8 @@ Return ONLY valid JSON matching this schema:
         if data and "objective" in data and "document_type" in data:
             raw_obj = data["objective"]
             # Ensure objective is cleanly phrased without mid-word cuts or trailing dangling words
-            if len(raw_obj) > 65:
-                raw_obj = clean_title_phrase(raw_obj, max_chars=65)
+            if len(raw_obj) > 80:
+                raw_obj = clean_title_phrase(raw_obj, max_chars=80)
             data["objective"] = raw_obj
 
             # Sanitize assumptions against forbidden "budget ranges" phrasing
