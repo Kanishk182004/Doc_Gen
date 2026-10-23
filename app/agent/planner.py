@@ -32,7 +32,8 @@ def clean_title_phrase(text: str, max_chars: int = 80) -> str:
         'to', 'for', 'with', 'and', 'by', 'the', 'a', 'an', 'of', 'in', 'on', 'from',
         'at', 'into', 'as', 'about', 'over', 'under', 'through', 'using', 'launch',
         'customer', 'limited', 'small', 'e-commerce', 'ecommerce', 'while', 'when',
-        'where', 'which', 'that', 'who', 'operating', 'maintaining'
+        'where', 'which', 'that', 'who', 'operating', 'maintaining', 'within', 'during',
+        'across', 'via'
     }
     for w in words:
         if current_len + len(w) + (1 if accumulated else 0) <= max_chars:
@@ -51,10 +52,12 @@ def clean_title_phrase(text: str, max_chars: int = 80) -> str:
     ):
         accumulated.pop()
 
-    while accumulated and accumulated[-1].lower() in {'for', 'a', 'an', 'the', 'at', 'with', 'in', 'on', 'of', 'and', 'while'}:
+    while accumulated and accumulated[-1].lower() in {'for', 'a', 'an', 'the', 'at', 'with', 'in', 'on', 'of', 'and', 'while', 'within', 'during'}:
         accumulated.pop()
-        
+
+    # If ending with hanging count modifier like 'for a 50-person' where following noun was cut
     result = ' '.join(accumulated).strip()
+    result = re.sub(r'\s+for\s+a\s+\d+-(?:person|member|team|day|week)s?$', '', result, flags=re.IGNORECASE).strip()
     return result if result else clean[:max_chars].strip()
 
 class DynamicPlanner:
