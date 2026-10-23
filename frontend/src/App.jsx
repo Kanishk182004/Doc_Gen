@@ -27,7 +27,10 @@ import {
   History,
   Trash2,
   MessageSquare,
-  RotateCcw
+  RotateCcw,
+  PanelLeftClose,
+  PanelLeft,
+  ChevronRight
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ParticlesBackground } from './components/ParticlesBackground';
@@ -149,7 +152,7 @@ export default function App() {
     }
   });
   const [activeChatId, setActiveChatId] = useState(null);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Save history on change
   useEffect(() => {
@@ -179,7 +182,6 @@ export default function App() {
     setCurrentStageIdx(4);
     if (item.provider) setSelectedProvider(item.provider);
     if (item.model) setSelectedModel(item.model);
-    setShowHistoryModal(false);
   };
 
   // Delete a specific history entry
@@ -397,18 +399,18 @@ export default function App() {
             <span>New Chat</span>
           </button>
 
-          {/* History Drawer Trigger */}
+          {/* Toggle Sidebar Button */}
           <button
-            onClick={() => setShowHistoryModal(!showHistoryModal)}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               padding: '6px 14px',
               borderRadius: '9999px',
-              backgroundColor: showHistoryModal ? 'rgba(0, 245, 160, 0.2)' : 'rgba(10, 13, 17, 0.8)',
-              border: `1px solid ${showHistoryModal ? '#00f5a0' : 'rgba(255, 255, 255, 0.12)'}`,
-              color: showHistoryModal ? '#00f5a0' : '#cbd5e1',
+              backgroundColor: sidebarOpen ? 'rgba(0, 245, 160, 0.2)' : 'rgba(10, 13, 17, 0.8)',
+              border: `1px solid ${sidebarOpen ? '#00f5a0' : 'rgba(255, 255, 255, 0.12)'}`,
+              color: sidebarOpen ? '#00f5a0' : '#cbd5e1',
               fontSize: '12px',
               fontWeight: '600',
               cursor: 'pointer',
@@ -418,11 +420,11 @@ export default function App() {
               e.currentTarget.style.borderColor = '#00f5a0';
             }}
             onMouseLeave={(e) => {
-              if (!showHistoryModal) e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+              if (!sidebarOpen) e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
             }}
           >
-            <History size={14} />
-            <span>History ({chatHistory.length})</span>
+            {sidebarOpen ? <PanelLeftClose size={14} /> : <PanelLeft size={14} />}
+            <span>{sidebarOpen ? 'Hide History' : `History (${chatHistory.length})`}</span>
           </button>
 
           {/* LLM Selector Button */}
@@ -471,14 +473,233 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Main Studio Container */}
-      <main style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '36px 32px 80px',
+      {/* Main Studio Layout: Left Sidebar (Gemini style) + Main Content */}
+      <div style={{
+        display: 'flex',
+        minHeight: 'calc(100vh - 65px)',
         position: 'relative',
         zIndex: 10
       }}>
+        {/* Gemini-Style Left Sidebar */}
+        <aside style={{
+          width: sidebarOpen ? '280px' : '0px',
+          minWidth: sidebarOpen ? '280px' : '0px',
+          backgroundColor: 'rgba(7, 10, 15, 0.95)',
+          backdropFilter: 'blur(16px)',
+          borderRight: sidebarOpen ? '1px solid rgba(255, 255, 255, 0.08)' : 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflow: 'hidden',
+          zIndex: 40,
+          position: 'sticky',
+          top: '65px',
+          height: 'calc(100vh - 65px)'
+        }}>
+          {sidebarOpen && (
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '280px' }}>
+              
+              {/* Top Action in Sidebar: New Chat */}
+              <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <button
+                  onClick={handleNewChat}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(0, 245, 160, 0.1)',
+                    border: '1px solid rgba(0, 245, 160, 0.3)',
+                    color: '#00f5a0',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 245, 160, 0.2)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 245, 160, 0.1)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <Plus size={16} />
+                  <span>Start New Document</span>
+                </button>
+              </div>
+
+              {/* History Section Header */}
+              <div style={{
+                padding: '12px 16px 6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>
+                  Recent Documents ({chatHistory.length})
+                </span>
+                {chatHistory.length > 0 && (
+                  <button
+                    onClick={handleClearAllHistory}
+                    title="Clear history"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748b',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      padding: '2px 4px'
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {/* Scrollable Chat Item List */}
+              <div style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '6px 10px 16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px'
+              }}>
+                {chatHistory.length === 0 ? (
+                  <div style={{
+                    padding: '36px 14px',
+                    textAlign: 'center',
+                    color: '#475569',
+                    fontSize: '12px'
+                  }}>
+                    <MessageSquare size={24} style={{ margin: '0 auto 8px', opacity: 0.4 }} />
+                    <p style={{ margin: 0, fontWeight: '600' }}>No chat history yet</p>
+                    <p style={{ margin: '4px 0 0', fontSize: '11px' }}>Your generated documents will appear here like in Gemini</p>
+                  </div>
+                ) : (
+                  chatHistory.map((item) => {
+                    const isSelected = activeChatId === item.id;
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => handleSelectHistoryItem(item)}
+                        style={{
+                          padding: '10px 12px',
+                          borderRadius: '8px',
+                          backgroundColor: isSelected ? 'rgba(0, 245, 160, 0.12)' : 'transparent',
+                          border: `1px solid ${isSelected ? 'rgba(0, 245, 160, 0.4)' : 'transparent'}`,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '8px',
+                          transition: 'all 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                            <span style={{
+                              fontSize: '9.5px',
+                              padding: '1px 5px',
+                              borderRadius: '3px',
+                              backgroundColor: 'rgba(0, 245, 160, 0.15)',
+                              color: '#00f5a0',
+                              fontWeight: '700'
+                            }}>
+                              {item.docType?.replace('Document', 'Doc') || 'Doc'}
+                            </span>
+                            <span style={{ fontSize: '10px', color: '#64748b' }}>
+                              {item.timestamp}
+                            </span>
+                          </div>
+
+                          <div style={{
+                            fontSize: '12.5px',
+                            fontWeight: isSelected ? '700' : '500',
+                            color: isSelected ? '#ffffff' : '#cbd5e1',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {item.title || item.prompt}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => handleDeleteHistoryItem(item.id, e)}
+                          title="Delete chat"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#475569',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            opacity: 0.7
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#ef4444';
+                            e.currentTarget.style.opacity = '1';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '#475569';
+                            e.currentTarget.style.opacity = '0.7';
+                          }}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Sidebar Footer */}
+              <div style={{
+                padding: '12px 14px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '11px',
+                color: '#64748b'
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <ShieldCheck size={13} color="#00f5a0" />
+                  <span>Grounding Active</span>
+                </span>
+                <span style={{ color: '#00f5a0' }}>{PROVIDERS.find(p => p.id === selectedProvider)?.name}</span>
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* Main Content Area */}
+        <main style={{
+          flex: 1,
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '36px 32px 80px',
+          minWidth: 0
+        }}>
 
         {/* Hero Title */}
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 32px' }}>
@@ -1119,280 +1340,8 @@ export default function App() {
           </div>
         )}
 
-        {/* History Modal / Drawer */}
-        {showHistoryModal && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 100,
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px'
-          }}>
-            <div style={{
-              width: '100%',
-              maxWidth: '680px',
-              maxHeight: '80vh',
-              backgroundColor: '#0a0d12',
-              border: '1px solid rgba(0, 245, 160, 0.3)',
-              borderRadius: '16px',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 245, 160, 0.15)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden'
-            }}>
-              {/* Header */}
-              <div style={{
-                padding: '18px 24px',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: 'rgba(5, 7, 10, 0.5)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <History size={18} color="#00f5a0" />
-                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#ffffff' }}>
-                    Document Generation History
-                  </span>
-                  <span style={{
-                    fontSize: '11px',
-                    padding: '2px 8px',
-                    borderRadius: '9999px',
-                    backgroundColor: 'rgba(0, 245, 160, 0.15)',
-                    color: '#00f5a0',
-                    fontWeight: '700'
-                  }}>
-                    {chatHistory.length} saved
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {chatHistory.length > 0 && (
-                    <button
-                      onClick={handleClearAllHistory}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        padding: '5px 12px',
-                        borderRadius: '6px',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        color: '#f87171',
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <Trash2 size={12} />
-                      <span>Clear All</span>
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => setShowHistoryModal(false)}
-                    style={{
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: '#94a3b8',
-                      fontSize: '13px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-
-              {/* Chat list */}
-              <div style={{
-                padding: '16px 20px',
-                overflowY: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-                flex: 1
-              }}>
-                {chatHistory.length === 0 ? (
-                  <div style={{
-                    textAlign: 'center',
-                    padding: '48px 20px',
-                    color: '#64748b',
-                    fontSize: '13px'
-                  }}>
-                    <MessageSquare size={32} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-                    <p style={{ margin: 0, fontWeight: '600' }}>No past documents found.</p>
-                    <p style={{ margin: '4px 0 0', fontSize: '12px' }}>Generate a document and it will appear here for one-click access.</p>
-                  </div>
-                ) : (
-                  chatHistory.map((item) => {
-                    const isSelected = activeChatId === item.id;
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => handleSelectHistoryItem(item)}
-                        style={{
-                          padding: '14px 16px',
-                          borderRadius: '10px',
-                          backgroundColor: isSelected ? 'rgba(0, 245, 160, 0.1)' : 'rgba(255, 255, 255, 0.03)',
-                          border: `1px solid ${isSelected ? '#00f5a0' : 'rgba(255, 255, 255, 0.08)'}`,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '12px',
-                          transition: 'all 0.15s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
-                            e.currentTarget.style.borderColor = 'rgba(0, 245, 160, 0.4)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-                          }
-                        }}
-                      >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                            <span style={{
-                              padding: '2px 8px',
-                              borderRadius: '4px',
-                              backgroundColor: 'rgba(0, 245, 160, 0.15)',
-                              color: '#00f5a0',
-                              fontSize: '10px',
-                              fontWeight: '800'
-                            }}>
-                              {item.docType.toUpperCase()}
-                            </span>
-                            <span style={{ fontSize: '11px', color: '#64748b' }}>
-                              {item.date} at {item.timestamp}
-                            </span>
-                            <span style={{ fontSize: '10px', color: '#00f5a0', backgroundColor: 'rgba(0, 245, 160, 0.08)', padding: '1px 6px', borderRadius: '4px' }}>
-                              {item.provider?.toUpperCase()}
-                            </span>
-                          </div>
-
-                          <div style={{
-                            fontSize: '13.5px',
-                            fontWeight: '700',
-                            color: isSelected ? '#00f5a0' : '#f8fafc',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {item.title}
-                          </div>
-
-                          <div style={{
-                            fontSize: '12px',
-                            color: '#94a3b8',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            marginTop: '2px'
-                          }}>
-                            "{item.prompt}"
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          {item.docUrl && (
-                            <a
-                              href={`http://127.0.0.1:8000${item.docUrl}`}
-                              download
-                              onClick={(e) => e.stopPropagation()}
-                              style={{
-                                padding: '6px 10px',
-                                borderRadius: '6px',
-                                backgroundColor: 'rgba(0, 245, 160, 0.15)',
-                                color: '#00f5a0',
-                                border: 'none',
-                                fontSize: '11px',
-                                fontWeight: '700',
-                                textDecoration: 'none',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                              }}
-                            >
-                              <Download size={12} />
-                              <span>DOCX</span>
-                            </a>
-                          )}
-
-                          <button
-                            onClick={(e) => handleDeleteHistoryItem(item.id, e)}
-                            title="Delete entry"
-                            style={{
-                              padding: '6px',
-                              borderRadius: '6px',
-                              backgroundColor: 'transparent',
-                              border: 'none',
-                              color: '#64748b',
-                              cursor: 'pointer'
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
-                            onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              {/* Footer */}
-              <div style={{
-                padding: '12px 20px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                backgroundColor: 'rgba(5, 7, 10, 0.5)',
-                fontSize: '11px',
-                color: '#64748b'
-              }}>
-                <span>Click any item to load the prompt and full generated document</span>
-                <button
-                  onClick={() => {
-                    handleNewChat();
-                    setShowHistoryModal(false);
-                  }}
-                  style={{
-                    padding: '5px 12px',
-                    borderRadius: '9999px',
-                    backgroundColor: '#00f5a0',
-                    color: '#05070a',
-                    fontWeight: '700',
-                    fontSize: '11px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  <Plus size={12} />
-                  <span>Start New Chat</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
       </main>
+      </div>
     </div>
   );
 }
