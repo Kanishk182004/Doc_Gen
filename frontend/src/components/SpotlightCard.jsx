@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 export const SpotlightCard = ({ 
   children, 
   className = '', 
-  accentColor = '#542A52', // Plum structural border
-  spotlightGlow = 'rgba(255, 179, 154, 0.14)', // Peach interactive hover
+  accentColor = '#00f0ff', // Plum structural border
+  spotlightGlow = 'rgba(0, 240, 255, 0.14)', // Peach interactive hover
   style = {} 
 }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -27,12 +27,12 @@ export const SpotlightCard = ({
       style={{
         position: 'relative',
         borderRadius: '16px',
-        border: '1px solid rgba(84, 42, 82, 0.2)', // Discrete plum border line
+        border: '1px solid rgba(0, 240, 255, 0.2)', // Discrete plum border line
         backgroundColor: '#050407', // Jet black pure core
         backdropFilter: 'blur(20px)',
         overflow: 'hidden',
         boxShadow: isHovered 
-          ? '0 16px 45px -10px rgba(0, 0, 0, 0.95), 0 0 25px rgba(84, 42, 82, 0.18)' 
+          ? '0 16px 45px -10px rgba(0, 0, 0, 0.95), 0 0 25px rgba(0, 240, 255, 0.18)' 
           : '0 8px 30px rgba(0, 0, 0, 0.85)',
         transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         ...style
