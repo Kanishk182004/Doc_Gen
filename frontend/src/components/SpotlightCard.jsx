@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-// Glittery Black-Pink-Emerald Spotlight Card
-export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 42, 133, 0.18)', style = {} }) => {
+// Cyber Emerald Spotlight Card
+export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(0, 245, 160, 0.16)', style = {} }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
 
@@ -22,11 +22,11 @@ export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba
         position: 'relative',
         borderRadius: '16px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
-        backgroundColor: '#0c0d12',
+        backgroundColor: '#0a0d11',
         backdropFilter: 'blur(20px)',
         overflow: 'hidden',
         boxShadow: isHovered 
-          ? '0 12px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 42, 133, 0.12)' 
+          ? '0 12px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 245, 160, 0.15)' 
           : '0 8px 30px rgba(0, 0, 0, 0.6)',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         ...style

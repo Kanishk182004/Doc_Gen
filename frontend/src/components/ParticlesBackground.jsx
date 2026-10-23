@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-// Deep cyber-glitter particle network: Neon Pink (#ff2a85) & Cyber Emerald (#00f5a0)
+// Unified Cyber Emerald (#00f5a0) glitter and ambient neural network
 export const ParticlesBackground = () => {
   const canvasRef = useRef(null);
 
@@ -19,33 +19,28 @@ export const ParticlesBackground = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    // Subtle floating glitter stars
-    const particles = Array.from({ length: 60 }, () => ({
+    const particles = Array.from({ length: 55 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
       vx: (Math.random() - 0.5) * 0.35,
       vy: (Math.random() - 0.5) * 0.35,
       size: Math.random() * 2 + 0.8,
       alpha: Math.random() * 0.6 + 0.2,
-      dAlpha: (Math.random() - 0.5) * 0.02,
-      isPink: Math.random() > 0.45
+      dAlpha: (Math.random() - 0.5) * 0.015
     }));
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Connecting neural filaments
+      // Connecting neural filaments in emerald
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          if (dist < 130) {
             ctx.beginPath();
-            const grad = ctx.createLinearGradient(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
-            grad.addColorStop(0, particles[i].isPink ? 'rgba(255, 42, 133, 0.15)' : 'rgba(0, 245, 160, 0.15)');
-            grad.addColorStop(1, particles[j].isPink ? 'rgba(255, 42, 133, 0.15)' : 'rgba(0, 245, 160, 0.15)');
-            ctx.strokeStyle = grad;
+            ctx.strokeStyle = `rgba(0, 245, 160, ${0.12 * (1 - dist / 130)})`;
             ctx.lineWidth = 0.7;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -54,7 +49,7 @@ export const ParticlesBackground = () => {
         }
       }
 
-      // Sparkles
+      // Emerald sparkles
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -68,13 +63,11 @@ export const ParticlesBackground = () => {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.isPink
-          ? `rgba(255, 42, 133, ${p.alpha})`
-          : `rgba(0, 245, 160, ${p.alpha})`;
+        ctx.fillStyle = `rgba(0, 245, 160, ${p.alpha})`;
         ctx.shadowBlur = 8;
-        ctx.shadowColor = p.isPink ? '#ff2a85' : '#00f5a0';
+        ctx.shadowColor = '#00f5a0';
         ctx.fill();
-        ctx.shadowBlur = 0; // reset
+        ctx.shadowBlur = 0;
       });
 
       animationFrameId = requestAnimationFrame(render);
