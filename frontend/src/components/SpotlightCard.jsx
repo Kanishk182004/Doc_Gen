@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-// Inspired by React Bits spotlight effect card
-export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(99, 102, 241, 0.15)', style = {} }) => {
+// Glittery Black-Pink-Emerald Spotlight Card
+export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba(255, 42, 133, 0.18)', style = {} }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
 
@@ -22,10 +22,13 @@ export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba
         position: 'relative',
         borderRadius: '16px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(16px)',
+        backgroundColor: '#0c0d12',
+        backdropFilter: 'blur(20px)',
         overflow: 'hidden',
-        transition: 'border-color 0.25s ease, transform 0.2s ease',
+        boxShadow: isHovered 
+          ? '0 12px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 42, 133, 0.12)' 
+          : '0 8px 30px rgba(0, 0, 0, 0.6)',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         ...style
       }}
       className={className}
@@ -39,8 +42,8 @@ export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba
           bottom: 0,
           pointerEvents: 'none',
           opacity: isHovered ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-          background: `radial-gradient(circle 350px at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`,
+          transition: 'opacity 0.35s ease',
+          background: `radial-gradient(circle 380px at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 75%)`,
           zIndex: 1
         }}
       />
@@ -48,4 +51,3 @@ export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba
     </div>
   );
 };
-
