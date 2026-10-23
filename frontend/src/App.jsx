@@ -890,6 +890,26 @@ export default function App() {
 
               </div>
 
+              {/* High Credits / Token Capacity Guidance Callout */}
+              <div style={{
+                marginTop: '16px',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(0, 245, 160, 0.05)',
+                border: '1px solid rgba(0, 245, 160, 0.2)',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                fontSize: '11.5px',
+                lineHeight: '1.5',
+                color: '#cbd5e1'
+              }}>
+                <Sparkles size={16} color="#00f5a0" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <strong style={{ color: '#00f5a0' }}>High Credit / Paid Tier Advantage:</strong> Accounts with higher credit limits or paid API tiers can generate significantly longer, denser documents with 8+ deep analytical sections, exhaustive comparative tables, and multi-page technical blueprints without encountering free-tier rate limits (TPM/RPD).
+                </div>
+              </div>
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '14px' }}>
                 <button
                   onClick={() => setShowConfig(false)}
