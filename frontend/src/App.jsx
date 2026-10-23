@@ -425,7 +425,7 @@ export default function App() {
             width: '36px',
             height: '36px',
             borderRadius: '10px',
-            background: 'linear-gradient(135deg, #d946ef 0%, #fb923c 100%)',
+            backgroundColor: '#d946ef', boxShadow: '0 0 20px rgba(217, 70, 239, 0.45)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -436,15 +436,15 @@ export default function App() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em', color: '#ffffff' }}>
-                SCRIBE<span style={{ background: 'linear-gradient(135deg, #d946ef, #fb923c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>
+                <span style={{ color: "#d946ef" }}>SCRIBE</span><span style={{ color: "#fb923c" }}>AI</span>
               </span>
               <span className="mobile-hide" style={{
                 fontSize: '10px',
                 padding: '2px 8px',
                 borderRadius: '9999px',
-                border: '1px solid rgba(251, 146, 60, 0.4)',
-                backgroundColor: 'rgba(251, 146, 60, 0.1)',
-                color: '#fb923c',
+                border: '1px solid rgba(217, 70, 239, 0.4)',
+                backgroundColor: 'rgba(217, 70, 239, 0.1)',
+                color: '#d946ef',
                 fontWeight: '700',
                 letterSpacing: '0.04em'
               }}>
@@ -571,7 +571,7 @@ export default function App() {
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #d946ef, #fb923c)', border: 'none',
+                  backgroundColor: '#fb923c', border: 'none', color: '#050407',
                   color: '#050407',
                   display: 'flex',
                   alignItems: 'center',
@@ -611,7 +611,7 @@ export default function App() {
                 gap: '6px',
                 padding: '6px 14px',
                 borderRadius: '9999px',
-                background: 'linear-gradient(135deg, #d946ef, #fb923c)', border: 'none',
+                backgroundColor: '#fb923c', border: 'none', color: '#050407',
                 border: 'none',
                 color: '#050407',
                 fontSize: '12px',
@@ -838,7 +838,7 @@ export default function App() {
                 color: '#64748b'
               }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <ShieldCheck size={13} color="#fb923c" />
+                  <ShieldCheck size={13} color="#d946ef" />
                   <span>Grounding Active</span>
                 </span>
                 <span style={{ color: '#fb923c' }}>{PROVIDERS.find(p => p.id === selectedProvider)?.name}</span>
@@ -884,7 +884,7 @@ export default function App() {
             Generate Executive Word Documents with{' '}
             <span style={{
               color: '#fb923c',
-              textShadow: '0 0 30px rgba(217, 70, 239, 0.6), 0 0 15px rgba(251, 146, 60, 0.4)'
+              color: '#fb923c', textShadow: '0 0 25px rgba(217, 70, 239, 0.5)'
             }}>
               Autonomous Reasoning
             </span>
@@ -1023,7 +1023,7 @@ export default function App() {
                   style={{
                     padding: '6px 16px',
                     borderRadius: '9999px',
-                    background: 'linear-gradient(135deg, #d946ef, #fb923c)', border: 'none',
+                    backgroundColor: '#fb923c', border: 'none', color: '#050407',
                     color: '#050407',
                     fontWeight: '700',
                     fontSize: '11.5px',
@@ -1339,7 +1339,7 @@ export default function App() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      background: 'linear-gradient(135deg, #d946ef, #fb923c)', border: 'none',
+                      backgroundColor: '#fb923c', border: 'none', color: '#050407',
                       color: '#050407',
                       padding: '10px 22px',
                       borderRadius: '9999px',
