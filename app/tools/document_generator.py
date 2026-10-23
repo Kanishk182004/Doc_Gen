@@ -9,6 +9,35 @@ from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 from app.schemas import DocumentContent
 
+def sanitize_text(text: Optional[str]) -> str:
+    """
+    Sanitize text to standard ASCII/safe characters.
+    Replaces non-breaking hyphens (U+2011), en-dashes, smart quotes, etc.
+    which render as question marks ('?') in Windows/Word CP1252 environments.
+    """
+    if not text:
+        return ""
+    replacements = {
+        "\u2011": "-",  # non-breaking hyphen -> standard hyphen
+        "\u2010": "-",  # unicode hyphen
+        "\u2012": "-",  # figure dash
+        "\u2013": "-",  # en dash
+        "\u2014": "--", # em dash
+        "\u2018": "'",  # left single quotation mark
+        "\u2019": "'",  # right single quotation mark
+        "\u201a": "'",  # single low-9 quotation mark
+        "\u201b": "'",  # single high-reversed-9 quotation mark
+        "\u201c": '"',  # left double quotation mark
+        "\u201d": '"',  # right double quotation mark
+        "\u201e": '"',  # double low-9 quotation mark
+        "\u2026": "...", # ellipsis
+        "\u00a0": " ",  # non-breaking space
+        "\u202f": " ",  # narrow no-break space
+    }
+    for orig, target in replacements.items():
+        text = text.replace(orig, target)
+    return text
+
 def set_cell_background(cell, fill_hex: str):
     """Set background color for a table cell."""
     tc_pr = cell._tc.get_or_add_tcPr()
@@ -50,7 +79,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
     title_p = doc.add_paragraph()
     title_p.paragraph_format.space_before = Pt(12)
     title_p.paragraph_format.space_after = Pt(4)
-    title_run = title_p.add_run(doc_content.title)
+    title_run = title_p.add_run(sanitize_text(doc_content.title))
     title_run.font.name = "Calibri"
     title_run.font.size = Pt(24)
     title_run.font.bold = True
@@ -61,7 +90,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
         sub_p = doc.add_paragraph()
         sub_p.paragraph_format.space_before = Pt(0)
         sub_p.paragraph_format.space_after = Pt(14)
-        sub_run = sub_p.add_run(doc_content.subtitle)
+        sub_run = sub_p.add_run(sanitize_text(doc_content.subtitle))
         sub_run.font.name = "Calibri"
         sub_run.font.size = Pt(13)
         sub_run.font.italic = True
@@ -78,7 +107,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
     set_cell_margins(cell_left, top=120, bottom=120, left=150, right=150)
     p_meta1 = cell_left.paragraphs[0]
     p_meta1.paragraph_format.space_after = Pt(2)
-    r1 = p_meta1.add_run(f"Document Type: {doc_content.document_type}\nStatus: Official Draft")
+    r1 = p_meta1.add_run(f"Document Type: {sanitize_text(doc_content.document_type)}\nStatus: Official Draft")
     r1.font.size = Pt(9.5)
     r1.font.color.rgb = RGBColor(50, 50, 50)
 
@@ -106,23 +135,23 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
     if doc_content.executive_summary:
         h_exec = doc.add_heading("Executive Summary", level=1)
         format_heading(h_exec)
-        p_exec = doc.add_paragraph(doc_content.executive_summary)
+        p_exec = doc.add_paragraph(sanitize_text(doc_content.executive_summary))
         p_exec.paragraph_format.line_spacing = 1.15
         p_exec.paragraph_format.space_after = Pt(12)
 
     # Sections
     for sec in doc_content.sections:
-        h = doc.add_heading(sec.heading, level=sec.level)
+        h = doc.add_heading(sanitize_text(sec.heading), level=sec.level)
         format_heading(h)
 
         if sec.body:
-            p = doc.add_paragraph(sec.body)
+            p = doc.add_paragraph(sanitize_text(sec.body))
             p.paragraph_format.line_spacing = 1.15
             p.paragraph_format.space_after = Pt(6)
 
         if sec.bullet_points:
             for bp in sec.bullet_points:
-                bp_p = doc.add_paragraph(bp, style="List Bullet")
+                bp_p = doc.add_paragraph(sanitize_text(bp), style="List Bullet")
                 bp_p.paragraph_format.space_after = Pt(3)
                 bp_p.paragraph_format.line_spacing = 1.1
 
@@ -133,7 +162,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
             # Header Row - Professional Dark Slate Header
             hdr_cells = t.rows[0].cells
             for idx, text in enumerate(sec.table_headers):
-                hdr_cells[idx].text = text
+                hdr_cells[idx].text = sanitize_text(text)
                 set_cell_background(hdr_cells[idx], "1E293B")
                 set_cell_margins(hdr_cells[idx], top=100, bottom=100, left=120, right=120)
                 for prg in hdr_cells[idx].paragraphs:
@@ -148,7 +177,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
                 fill_color = "F9FAFB" if r_idx % 2 == 1 else "FFFFFF"
                 for c_idx, cell_value in enumerate(row_data):
                     if c_idx < len(row_cells):
-                        row_cells[c_idx].text = str(cell_value)
+                        row_cells[c_idx].text = sanitize_text(str(cell_value))
                         set_cell_background(row_cells[c_idx], fill_color)
                         set_cell_margins(row_cells[c_idx], top=80, bottom=80, left=120, right=120)
                         for prg in row_cells[c_idx].paragraphs:
@@ -163,7 +192,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
         h_assump = doc.add_heading("Assumptions & Operational Constraints", level=1)
         format_heading(h_assump)
         for a in doc_content.assumptions:
-            ap = doc.add_paragraph(a, style="List Bullet")
+            ap = doc.add_paragraph(sanitize_text(a), style="List Bullet")
             ap.paragraph_format.space_after = Pt(3)
 
     # Next Steps / Recommendations
@@ -171,7 +200,7 @@ def create_docx_file(doc_content: DocumentContent, output_path: Path) -> Path:
         h_next = doc.add_heading("Next Steps & Actionable Recommendations", level=1)
         format_heading(h_next)
         for idx, step in enumerate(doc_content.next_steps, 1):
-            doc.add_paragraph(f"{idx}. {step}")
+            doc.add_paragraph(f"{idx}. {sanitize_text(step)}")
 
     # Output directory write
     output_path.parent.mkdir(parents=True, exist_ok=True)
