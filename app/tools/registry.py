@@ -777,7 +777,10 @@ Return ONLY a complete, valid JSON object matching this schema:
 
     def build_word_document(self, doc_content: DocumentContent) -> str:
         """Tool 4: Render DocumentContent into a styled Word .docx file."""
-        filename = f"{uuid.uuid4().hex[:12]}_{doc_content.document_type.lower().replace(' ', '_')}.docx"
+        # Sanitize document type to ensure safe alphanumeric and underscore characters only
+        clean_doc_type = re.sub(r'[^a-zA-Z0-9_]', '_', doc_content.document_type.lower())
+        clean_doc_type = re.sub(r'_+', '_', clean_doc_type).strip('_') or "document"
+        filename = f"{uuid.uuid4().hex[:12]}_{clean_doc_type}.docx"
         output_path = settings.GENERATED_DOCS_DIR / filename
         create_docx_file(doc_content, output_path)
         return filename

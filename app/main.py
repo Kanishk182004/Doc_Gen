@@ -33,7 +33,7 @@ app.add_middleware(
 # Initialize document agent singleton
 document_agent = DocumentAgent()
 
-SAFE_FILENAME_REGEX = re.compile(r"^[a-zA-Z0-9_\-\.]+\.docx$")
+SAFE_FILENAME_REGEX = re.compile(r"^[a-zA-Z0-9_\-\.%& ]+\.docx$")
 
 @app.get("/", tags=["General"])
 def root():
