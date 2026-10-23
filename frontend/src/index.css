@@ -5,12 +5,12 @@
     --bg-primary: #050407; /* Pure Jet Black with velvet plum hue */
     --bg-secondary: #0d0a12;
     --bg-tertiary: #16101d;
-    --border-color: rgba(217, 70, 239, 0.12);
-    --border-highlight: rgba(251, 146, 60, 0.45);
-    --accent-plum: #d946ef;
-    --accent-peach: #fb923c;
-    --accent-plum-glow: rgba(217, 70, 239, 0.35);
-    --accent-peach-glow: rgba(251, 146, 60, 0.3);
+    --border-color: rgba(84, 42, 82, 0.12);
+    --border-highlight: rgba(255, 179, 154, 0.45);
+    --accent-plum: #542A52;
+    --accent-peach: #ffb39a;
+    --accent-plum-glow: rgba(84, 42, 82, 0.35);
+    --accent-peach-glow: rgba(255, 179, 154, 0.3);
     --text-primary: #fdf4ff;
     --text-secondary: #e2d4e8;
     --text-muted: #9d8aa5;
@@ -35,11 +35,11 @@
   background: rgba(13, 10, 18, 0.8);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(217, 70, 239, 0.35), rgba(251, 146, 60, 0.35));
+  background: linear-gradient(180deg, rgba(84, 42, 82, 0.35), rgba(255, 179, 154, 0.35));
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(217, 70, 239, 0.6), rgba(251, 146, 60, 0.6));
+  background: linear-gradient(180deg, rgba(84, 42, 82, 0.6), rgba(255, 179, 154, 0.6));
 }
 
 /* Mobile & Tablet Responsiveness Utilities */

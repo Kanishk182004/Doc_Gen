@@ -375,7 +375,7 @@ export default function App() {
         particleCount: 75,
         spread: 65,
         origin: { y: 0.65 },
-        colors: ['#d946ef', '#fb923c', '#f472b6', '#ffffff']
+        colors: ['#542A52', '#ffb39a', '#f472b6', '#ffffff']
       });
     } catch (err) {
       setErrorMsg(err.message);
@@ -425,26 +425,26 @@ export default function App() {
             width: '36px',
             height: '36px',
             borderRadius: '10px',
-            backgroundColor: '#d946ef', boxShadow: '0 0 20px rgba(217, 70, 239, 0.45)',
+            backgroundColor: '#542A52', boxShadow: '0 0 20px rgba(84, 42, 82, 0.45)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(251, 146, 60, 0.4)'
+            boxShadow: '0 0 20px rgba(255, 179, 154, 0.4)'
           }}>
             <Sparkles size={18} color="#050407" strokeWidth={2.5} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em', color: '#ffffff' }}>
-                <span style={{ color: "#d946ef" }}>SCRIBE</span><span style={{ color: "#fb923c" }}>AI</span>
+                <span style={{ color: "#542A52" }}>SCRIBE</span><span style={{ color: "#ffb39a" }}>AI</span>
               </span>
               <span className="mobile-hide" style={{
                 fontSize: '10px',
                 padding: '2px 8px',
                 borderRadius: '9999px',
-                border: '1px solid rgba(217, 70, 239, 0.4)',
-                backgroundColor: 'rgba(217, 70, 239, 0.1)',
-                color: '#d946ef',
+                border: '1px solid rgba(84, 42, 82, 0.4)',
+                backgroundColor: 'rgba(84, 42, 82, 0.1)',
+                color: '#542A52',
                 fontWeight: '700',
                 letterSpacing: '0.04em'
               }}>
@@ -469,9 +469,9 @@ export default function App() {
               gap: '6px',
               padding: '6px 12px',
               borderRadius: '9999px',
-              backgroundColor: 'rgba(251, 146, 60, 0.12)',
-              border: '1px solid rgba(251, 146, 60, 0.4)',
-              color: '#fb923c',
+              backgroundColor: 'rgba(255, 179, 154, 0.12)',
+              border: '1px solid rgba(255, 179, 154, 0.4)',
+              color: '#ffb39a',
               fontSize: '12px',
               fontWeight: '700',
               cursor: 'pointer',
@@ -491,9 +491,9 @@ export default function App() {
               gap: '6px',
               padding: '6px 12px',
               borderRadius: '9999px',
-              backgroundColor: sidebarOpen ? 'rgba(251, 146, 60, 0.2)' : 'rgba(10, 13, 17, 0.8)',
-              border: `1px solid ${sidebarOpen ? '#fb923c' : 'rgba(255, 255, 255, 0.12)'}`,
-              color: sidebarOpen ? '#fb923c' : '#cbd5e1',
+              backgroundColor: sidebarOpen ? 'rgba(255, 179, 154, 0.2)' : 'rgba(10, 13, 17, 0.8)',
+              border: `1px solid ${sidebarOpen ? '#ffb39a' : 'rgba(255, 255, 255, 0.12)'}`,
+              color: sidebarOpen ? '#ffb39a' : '#cbd5e1',
               fontSize: '12px',
               fontWeight: '600',
               cursor: 'pointer',
@@ -513,9 +513,9 @@ export default function App() {
               gap: '6px',
               padding: '6px 12px',
               borderRadius: '9999px',
-              backgroundColor: showConfig ? 'rgba(251, 146, 60, 0.15)' : 'rgba(10, 13, 17, 0.8)',
-              border: `1px solid ${showConfig ? 'rgba(251, 146, 60, 0.5)' : 'rgba(255, 255, 255, 0.1)'}`,
-              color: showConfig ? '#fb923c' : '#cbd5e1',
+              backgroundColor: showConfig ? 'rgba(255, 179, 154, 0.15)' : 'rgba(10, 13, 17, 0.8)',
+              border: `1px solid ${showConfig ? 'rgba(255, 179, 154, 0.5)' : 'rgba(255, 255, 255, 0.1)'}`,
+              color: showConfig ? '#ffb39a' : '#cbd5e1',
               fontSize: '11.5px',
               cursor: 'pointer',
               transition: 'all 0.2s'
@@ -537,9 +537,9 @@ export default function App() {
               gap: '6px',
               padding: '6px 12px',
               borderRadius: '9999px',
-              border: '1px solid rgba(251, 146, 60, 0.4)',
-              backgroundColor: 'rgba(251, 146, 60, 0.08)',
-              color: '#fb923c',
+              border: '1px solid rgba(255, 179, 154, 0.4)',
+              backgroundColor: 'rgba(255, 179, 154, 0.08)',
+              color: '#ffb39a',
               fontSize: '11.5px',
               fontWeight: '600',
               textDecoration: 'none'
@@ -571,7 +571,7 @@ export default function App() {
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  backgroundColor: '#fb923c', border: 'none', color: '#050407',
+                  backgroundColor: '#ffb39a', border: 'none', color: '#050407',
                   color: '#050407',
                   display: 'flex',
                   alignItems: 'center',
@@ -611,7 +611,7 @@ export default function App() {
                 gap: '6px',
                 padding: '6px 14px',
                 borderRadius: '9999px',
-                backgroundColor: '#fb923c', border: 'none', color: '#050407',
+                backgroundColor: '#ffb39a', border: 'none', color: '#050407',
                 border: 'none',
                 color: '#050407',
                 fontSize: '12px',
@@ -641,7 +641,7 @@ export default function App() {
           minWidth: sidebarOpen ? '280px' : '0px',
           backgroundColor: 'rgba(7, 5, 9, 0.97)',
           backdropFilter: 'blur(20px)',
-          borderRight: sidebarOpen ? '1px solid rgba(217, 70, 239, 0.15)' : 'none',
+          borderRight: sidebarOpen ? '1px solid rgba(84, 42, 82, 0.15)' : 'none',
           display: 'flex',
           flexDirection: 'column',
           transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -665,20 +665,20 @@ export default function App() {
                     gap: '10px',
                     padding: '10px 14px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(251, 146, 60, 0.1)',
-                    border: '1px solid rgba(251, 146, 60, 0.3)',
-                    color: '#fb923c',
+                    backgroundColor: 'rgba(255, 179, 154, 0.1)',
+                    border: '1px solid rgba(255, 179, 154, 0.3)',
+                    color: '#ffb39a',
                     fontSize: '13px',
                     fontWeight: '700',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(251, 146, 60, 0.2)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 179, 154, 0.2)';
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(251, 146, 60, 0.1)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 179, 154, 0.1)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
@@ -747,8 +747,8 @@ export default function App() {
                         style={{
                           padding: '10px 12px',
                           borderRadius: '8px',
-                          backgroundColor: isSelected ? 'rgba(251, 146, 60, 0.12)' : 'transparent',
-                          border: `1px solid ${isSelected ? 'rgba(251, 146, 60, 0.4)' : 'transparent'}`,
+                          backgroundColor: isSelected ? 'rgba(255, 179, 154, 0.12)' : 'transparent',
+                          border: `1px solid ${isSelected ? 'rgba(255, 179, 154, 0.4)' : 'transparent'}`,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
@@ -773,8 +773,8 @@ export default function App() {
                               fontSize: '9.5px',
                               padding: '1px 5px',
                               borderRadius: '3px',
-                              backgroundColor: 'rgba(251, 146, 60, 0.15)',
-                              color: '#fb923c',
+                              backgroundColor: 'rgba(255, 179, 154, 0.15)',
+                              color: '#ffb39a',
                               fontWeight: '700'
                             }}>
                               {item.docType?.replace('Document', 'Doc') || 'Doc'}
@@ -838,10 +838,10 @@ export default function App() {
                 color: '#64748b'
               }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <ShieldCheck size={13} color="#d946ef" />
+                  <ShieldCheck size={13} color="#542A52" />
                   <span>Grounding Active</span>
                 </span>
-                <span style={{ color: '#fb923c' }}>{PROVIDERS.find(p => p.id === selectedProvider)?.name}</span>
+                <span style={{ color: '#ffb39a' }}>{PROVIDERS.find(p => p.id === selectedProvider)?.name}</span>
               </div>
             </div>
           )}
@@ -864,10 +864,10 @@ export default function App() {
             gap: '8px',
             padding: '4px 14px',
             borderRadius: '9999px',
-            background: 'rgba(251, 146, 60, 0.1)',
-            border: '1px solid rgba(251, 146, 60, 0.3)',
+            background: 'rgba(255, 179, 154, 0.1)',
+            border: '1px solid rgba(255, 179, 154, 0.3)',
             fontSize: '12px',
-            color: '#fb923c',
+            color: '#ffb39a',
             marginBottom: '16px'
           }}>
             <Sparkles size={14} />
@@ -883,8 +883,8 @@ export default function App() {
           }}>
             Generate Executive Word Documents with{' '}
             <span style={{
-              color: '#fb923c',
-              textShadow: '0 0 25px rgba(217, 70, 239, 0.5)'
+              color: '#ffb39a',
+              textShadow: '0 0 25px rgba(84, 42, 82, 0.5)'
             }}>
               Autonomous Reasoning
             </span>
@@ -898,10 +898,10 @@ export default function App() {
         {/* Dynamic Provider & API Key Modal / Expandable Panel */}
         {showConfig && (
           <div style={{ maxWidth: '840px', margin: '0 auto 24px' }}>
-            <SpotlightCard style={{ padding: '24px 28px', border: '1px solid rgba(251, 146, 60, 0.3)' }}>
+            <SpotlightCard style={{ padding: '24px 28px', border: '1px solid rgba(255, 179, 154, 0.3)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ fontSize: '14px', fontWeight: '700', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <KeyRound size={16} color="#fb923c" />
+                  <KeyRound size={16} color="#ffb39a" />
                   <span>LLM Provider & Custom Key Configuration</span>
                 </span>
                 <span style={{ fontSize: '11px', color: '#64748b' }}>Client-side injected per request</span>
@@ -918,9 +918,9 @@ export default function App() {
                       style={{
                         padding: '12px 10px',
                         borderRadius: '10px',
-                        backgroundColor: isSelected ? 'rgba(251, 146, 60, 0.12)' : 'rgba(5, 7, 10, 0.6)',
-                        border: `1px solid ${isSelected ? '#fb923c' : 'rgba(255, 255, 255, 0.08)'}`,
-                        color: isSelected ? '#fb923c' : '#cbd5e1',
+                        backgroundColor: isSelected ? 'rgba(255, 179, 154, 0.12)' : 'rgba(5, 7, 10, 0.6)',
+                        border: `1px solid ${isSelected ? '#ffb39a' : 'rgba(255, 255, 255, 0.08)'}`,
+                        color: isSelected ? '#ffb39a' : '#cbd5e1',
                         cursor: 'pointer',
                         textAlign: 'center',
                         transition: 'all 0.15s ease'
@@ -971,7 +971,7 @@ export default function App() {
                     <label style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>
                       API Key for {currentProviderObj.name}:
                     </label>
-                    <span style={{ fontSize: '10px', color: currentApiKey ? '#fb923c' : '#64748b' }}>
+                    <span style={{ fontSize: '10px', color: currentApiKey ? '#ffb39a' : '#64748b' }}>
                       {currentApiKey ? `✓ ${currentProviderObj.name} Key Saved` : 'No key (Fallback active)'}
                     </span>
                   </div>
@@ -987,7 +987,7 @@ export default function App() {
                       borderRadius: '8px',
                       backgroundColor: 'rgba(5, 7, 10, 0.85)',
                       border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: '#fb923c',
+                      color: '#ffb39a',
                       fontSize: '12.5px',
                       outline: 'none',
                       fontFamily: 'monospace'
@@ -1002,8 +1002,8 @@ export default function App() {
                 marginTop: '16px',
                 padding: '10px 14px',
                 borderRadius: '8px',
-                backgroundColor: 'rgba(251, 146, 60, 0.05)',
-                border: '1px solid rgba(251, 146, 60, 0.2)',
+                backgroundColor: 'rgba(255, 179, 154, 0.05)',
+                border: '1px solid rgba(255, 179, 154, 0.2)',
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: '10px',
@@ -1011,9 +1011,9 @@ export default function App() {
                 lineHeight: '1.5',
                 color: '#cbd5e1'
               }}>
-                <Sparkles size={16} color="#fb923c" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <Sparkles size={16} color="#ffb39a" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
-                  <strong style={{ color: '#fb923c' }}>High Credit / Paid Tier Advantage:</strong> Accounts with higher credit limits or paid API tiers can generate significantly longer, denser documents with 8+ deep analytical sections, exhaustive comparative tables, and multi-page technical blueprints without encountering free-tier rate limits (TPM/RPD).
+                  <strong style={{ color: '#ffb39a' }}>High Credit / Paid Tier Advantage:</strong> Accounts with higher credit limits or paid API tiers can generate significantly longer, denser documents with 8+ deep analytical sections, exhaustive comparative tables, and multi-page technical blueprints without encountering free-tier rate limits (TPM/RPD).
                 </div>
               </div>
 
@@ -1023,7 +1023,7 @@ export default function App() {
                   style={{
                     padding: '6px 16px',
                     borderRadius: '9999px',
-                    backgroundColor: '#fb923c', border: 'none', color: '#050407',
+                    backgroundColor: '#ffb39a', border: 'none', color: '#050407',
                     color: '#050407',
                     fontWeight: '700',
                     fontSize: '11.5px',
@@ -1044,7 +1044,7 @@ export default function App() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontSize: '13px', fontWeight: '700', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Terminal size={15} color="#fb923c" />
+                <Terminal size={15} color="#ffb39a" />
                 <span>Document Objective & Directives</span>
               </span>
               <span style={{ fontSize: '11px', color: '#64748b' }}>Endpoint: POST /agent</span>
@@ -1099,8 +1099,8 @@ export default function App() {
                       transition: 'all 0.15s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#fb923c';
-                      e.currentTarget.style.color = '#fb923c';
+                      e.currentTarget.style.borderColor = '#ffb39a';
+                      e.currentTarget.style.color = '#ffb39a';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
@@ -1119,8 +1119,8 @@ export default function App() {
                   padding: '10px 22px',
                   borderRadius: '9999px',
                   background: isGenerating
-                    ? 'rgba(251, 146, 60, 0.25)'
-                    : '#fb923c',
+                    ? 'rgba(255, 179, 154, 0.25)'
+                    : '#ffb39a',
                   color: '#050407',
                   fontWeight: '800',
                   fontSize: '13.5px',
@@ -1129,7 +1129,7 @@ export default function App() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  boxShadow: '0 0 20px rgba(251, 146, 60, 0.4)',
+                  boxShadow: '0 0 20px rgba(255, 179, 154, 0.4)',
                   transition: 'transform 0.15s ease'
                 }}
                 onMouseEnter={(e) => !isGenerating && (e.currentTarget.style.transform = 'scale(1.03)')}
@@ -1176,10 +1176,10 @@ export default function App() {
             <SpotlightCard style={{ padding: '22px 26px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <span style={{ fontSize: '13px', fontWeight: '700', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Activity size={16} color="#fb923c" />
+                  <Activity size={16} color="#ffb39a" />
                   <span>Pipeline Execution Status</span>
                 </span>
-                <span style={{ fontSize: '12px', color: '#fb923c', fontWeight: '600' }}>
+                <span style={{ fontSize: '12px', color: '#ffb39a', fontWeight: '600' }}>
                   {isGenerating ? `Processing (${elapsedTime}s)` : 'Execution Completed'}
                 </span>
               </div>
@@ -1198,11 +1198,11 @@ export default function App() {
                         gap: '14px',
                         padding: '12px 14px',
                         borderRadius: '10px',
-                        backgroundColor: isCurrent ? 'rgba(251, 146, 60, 0.08)' : 'rgba(5, 7, 10, 0.5)',
+                        backgroundColor: isCurrent ? 'rgba(255, 179, 154, 0.08)' : 'rgba(5, 7, 10, 0.5)',
                         border: isCurrent 
-                          ? '1px solid rgba(251, 146, 60, 0.4)' 
+                          ? '1px solid rgba(255, 179, 154, 0.4)' 
                           : isDone 
-                          ? '1px solid rgba(251, 146, 60, 0.2)' 
+                          ? '1px solid rgba(255, 179, 154, 0.2)' 
                           : '1px solid rgba(255, 255, 255, 0.05)',
                         transition: 'all 0.3s ease'
                       }}
@@ -1214,9 +1214,9 @@ export default function App() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: isDone ? '#fb923c' : isCurrent ? 'rgba(251, 146, 60, 0.2)' : 'rgba(255, 255, 255, 0.08)',
-                        color: isDone ? '#050407' : isCurrent ? '#fb923c' : '#64748b',
-                        boxShadow: isDone ? '0 0 12px rgba(251, 146, 60, 0.5)' : 'none',
+                        backgroundColor: isDone ? '#ffb39a' : isCurrent ? 'rgba(255, 179, 154, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+                        color: isDone ? '#050407' : isCurrent ? '#ffb39a' : '#64748b',
+                        boxShadow: isDone ? '0 0 12px rgba(255, 179, 154, 0.5)' : 'none',
                         flexShrink: 0
                       }}>
                         {isDone ? (
@@ -1240,7 +1240,7 @@ export default function App() {
                           <span style={{
                             fontSize: '11px',
                             fontWeight: '700',
-                            color: isDone ? '#fb923c' : isCurrent ? '#38bdf8' : '#64748b'
+                            color: isDone ? '#ffb39a' : isCurrent ? '#38bdf8' : '#64748b'
                           }}>
                             {isDone ? 'COMPLETED' : isCurrent ? 'RUNNING...' : 'PENDING'}
                           </span>
@@ -1263,7 +1263,7 @@ export default function App() {
             
             <SpotlightCard style={{
               padding: '28px 32px',
-              border: '1px solid rgba(251, 146, 60, 0.3)',
+              border: '1px solid rgba(255, 179, 154, 0.3)',
               background: 'linear-gradient(135deg, rgba(10, 13, 17, 0.95) 0%, rgba(18, 22, 28, 0.95) 100%)'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
@@ -1272,8 +1272,8 @@ export default function App() {
                     <span style={{
                       padding: '3px 10px',
                       borderRadius: '9999px',
-                      backgroundColor: 'rgba(251, 146, 60, 0.15)',
-                      color: '#fb923c',
+                      backgroundColor: 'rgba(255, 179, 154, 0.15)',
+                      color: '#ffb39a',
                       fontSize: '11px',
                       fontWeight: '800',
                       letterSpacing: '0.04em'
@@ -1282,8 +1282,8 @@ export default function App() {
                     </span>
                     <span style={{
                       fontSize: '11px',
-                      color: '#fb923c',
-                      backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                      color: '#ffb39a',
+                      backgroundColor: 'rgba(255, 179, 154, 0.1)',
                       padding: '3px 10px',
                       borderRadius: '9999px',
                       fontWeight: '700'
@@ -1296,7 +1296,7 @@ export default function App() {
                     {result.title}
                   </h2>
                   <span style={{ fontSize: '12px', color: '#64748b' }}>
-                    File: <code style={{ color: '#fb923c' }}>{result.document_url}</code>
+                    File: <code style={{ color: '#ffb39a' }}>{result.document_url}</code>
                   </span>
                 </div>
 
@@ -1318,8 +1318,8 @@ export default function App() {
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#fb923c';
-                      e.currentTarget.style.color = '#fb923c';
+                      e.currentTarget.style.borderColor = '#ffb39a';
+                      e.currentTarget.style.color = '#ffb39a';
                       e.currentTarget.style.transform = 'scale(1.03)';
                     }}
                     onMouseLeave={(e) => {
@@ -1339,14 +1339,14 @@ export default function App() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      backgroundColor: '#fb923c', border: 'none', color: '#050407',
+                      backgroundColor: '#ffb39a', border: 'none', color: '#050407',
                       color: '#050407',
                       padding: '10px 22px',
                       borderRadius: '9999px',
                       fontSize: '13px',
                       fontWeight: '800',
                       textDecoration: 'none',
-                      boxShadow: '0 0 20px rgba(251, 146, 60, 0.4)',
+                      boxShadow: '0 0 20px rgba(255, 179, 154, 0.4)',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.03)')}
@@ -1368,17 +1368,17 @@ export default function App() {
                 flexWrap: 'wrap'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <ShieldCheck size={16} color="#fb923c" />
+                  <ShieldCheck size={16} color="#ffb39a" />
                   <span style={{ color: '#94a3b8' }}>Quality Check:</span>
-                  <strong style={{ color: '#fb923c' }}>{result.quality_review.score * 100}% Passed</strong>
+                  <strong style={{ color: '#ffb39a' }}>{result.quality_review.score * 100}% Passed</strong>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Cpu size={16} color="#fb923c" />
+                  <Cpu size={16} color="#ffb39a" />
                   <span style={{ color: '#94a3b8' }}>Active Provider:</span>
-                  <strong style={{ color: '#fb923c' }}>{result.llm_mode.toUpperCase()}</strong>
+                  <strong style={{ color: '#ffb39a' }}>{result.llm_mode.toUpperCase()}</strong>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Activity size={16} color="#fb923c" />
+                  <Activity size={16} color="#ffb39a" />
                   <span style={{ color: '#94a3b8' }}>DAG Tasks:</span>
                   <strong style={{ color: '#f8fafc' }}>{result.plan.length} Completed</strong>
                 </div>
@@ -1413,9 +1413,9 @@ export default function App() {
                           gap: '6px',
                           padding: '6px 14px',
                           borderRadius: '9999px',
-                          backgroundColor: isActive ? 'rgba(251, 146, 60, 0.12)' : 'transparent',
-                          color: isActive ? '#fb923c' : '#94a3b8',
-                          border: isActive ? '1px solid rgba(251, 146, 60, 0.3)' : '1px solid transparent',
+                          backgroundColor: isActive ? 'rgba(255, 179, 154, 0.12)' : 'transparent',
+                          color: isActive ? '#ffb39a' : '#94a3b8',
+                          border: isActive ? '1px solid rgba(255, 179, 154, 0.3)' : '1px solid transparent',
                           fontSize: '12px',
                           fontWeight: '600',
                           cursor: 'pointer'
@@ -1442,7 +1442,7 @@ export default function App() {
                       cursor: 'pointer'
                     }}
                   >
-                    {copied ? <Check size={12} color="#fb923c" /> : <Copy size={12} />}
+                    {copied ? <Check size={12} color="#ffb39a" /> : <Copy size={12} />}
                     <span>{copied ? 'Copied' : 'Copy'}</span>
                   </button>
                 )}
@@ -1468,8 +1468,8 @@ export default function App() {
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
-                        backgroundColor: 'rgba(251, 146, 60, 0.15)',
-                        color: '#fb923c',
+                        backgroundColor: 'rgba(255, 179, 154, 0.15)',
+                        color: '#ffb39a',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -1481,7 +1481,7 @@ export default function App() {
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
                           <span style={{ fontSize: '13px', fontWeight: '700', color: '#f8fafc' }}>{t.description}</span>
-                          <span style={{ fontSize: '10.5px', color: '#fb923c', fontWeight: '800' }}>{t.status.toUpperCase()}</span>
+                          <span style={{ fontSize: '10.5px', color: '#ffb39a', fontWeight: '800' }}>{t.status.toUpperCase()}</span>
                         </div>
                         <span style={{ fontSize: '12px', color: '#94a3b8' }}>{t.result}</span>
                       </div>
@@ -1507,7 +1507,7 @@ export default function App() {
                   margin: 0,
                   padding: '20px',
                   fontSize: '12px',
-                  color: '#fb923c',
+                  color: '#ffb39a',
                   fontFamily: 'monospace',
                   overflowX: 'auto',
                   backgroundColor: 'rgba(5, 7, 10, 0.95)',

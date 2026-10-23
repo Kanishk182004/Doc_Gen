@@ -19,9 +19,9 @@ export const ParticlesBackground = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    // Two distinct, unmixed color roles: Plum (#d946ef) and Peach (#fb923c)
-    const plumColor = { r: 217, g: 70, b: 239, hex: '#d946ef' };
-    const peachColor = { r: 251, g: 146, b: 60, hex: '#fb923c' };
+    // Two distinct, unmixed color roles: Plum (#542A52) and Peach (#ffb39a)
+    const plumColor = { r: 84, g: 42, b: 82, hex: '#542A52' };
+    const peachColor = { r: 255, g: 179, b: 154, hex: '#ffb39a' };
 
     const particles = Array.from({ length: 60 }, (_, i) => {
       // Alternating cleanly between Plum and Peach without muddy blending
