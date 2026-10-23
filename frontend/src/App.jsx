@@ -762,7 +762,7 @@ export default function App() {
           </h1>
 
           <p style={{ fontSize: '15px', color: '#94a3b8', margin: 0, lineHeight: '1.6' }}>
-            Choose Groq, OpenAI, Anthropic, or Google Gemini. Bring your own key or use default environment configuration.
+            Bring your own API key for Groq, OpenAI, Anthropic, or Google Gemini to configure any custom model.
           </p>
         </div>
 
