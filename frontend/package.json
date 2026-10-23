@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.49.0",
+    "@tailwindcss/vite": "^4.3.3",
     "autoprefixer": "^10.6.1",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",

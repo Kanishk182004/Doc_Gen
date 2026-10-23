@@ -48,3 +48,4 @@ export const SpotlightCard = ({ children, className = '', spotlightColor = 'rgba
     </div>
   );
 };
+

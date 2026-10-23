@@ -1,47 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  FileText, 
-  CheckCircle2, 
-  Clock, 
-  ArrowRight, 
-  Download, 
-  ShieldCheck, 
-  Cpu, 
-  Layers, 
-  ListChecks, 
+import {
+  Sparkles,
+  FileText,
+  CheckCircle2,
+  Clock,
+  ArrowRight,
+  Download,
+  ShieldCheck,
+  Cpu,
+  Layers,
+  ListChecks,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Copy,
+  ExternalLink,
+  ChevronRight,
+  Terminal,
+  Activity,
+  Maximize2,
+  FileCode,
+  Zap,
+  Check
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ParticlesBackground } from './components/ParticlesBackground';
 import { SpotlightCard } from './components/SpotlightCard';
 
-const SAMPLE_REQUESTS = [
+const SAMPLE_TEMPLATES = [
   {
+    tag: "Standard",
     title: "AI Chatbot Project Plan (8-Weeks)",
     category: "Project Plan",
     text: "Create a project plan for launching an AI-powered customer support chatbot for a 50-person e-commerce company within 8 weeks. Include phases, milestones, risks, owners, and success metrics."
   },
   {
+    tag: "Complex",
     title: "Support Modernization Proposal",
     category: "Business Proposal",
     text: "Prepare a proposal for improving customer support at a small company with a limited budget. We want to use AI but have not chosen a vendor or defined success metrics. Make reasonable assumptions and label them clearly, compare a lightweight pilot with a full rollout, identify risks, recommend next steps, and do not invent exact costs."
   },
   {
-    title: "Healthcare Nurse Onboarding SOP",
-    category: "SOP",
-    text: "Draft a Standard Operating Procedure (SOP) for onboarding specialized clinical nursing staff within a 14-day training timeframe. Include compliance milestones, patient privacy guidelines, and evaluation rubrics."
+    tag: "Technical",
+    title: "Microservices Architecture Spec",
+    category: "Technical Design",
+    text: "Draft a Technical Design Document for a distributed real-time notification engine. Include API specifications, caching tradeoffs, retry policies, and circuit breaker patterns."
   }
 ];
 
 export default function App() {
-  const [requestText, setRequestText] = useState(SAMPLE_REQUESTS[0].text);
+  const [requestText, setRequestText] = useState(SAMPLE_TEMPLATES[0].text);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeTab, setActiveTab] = useState('trace'); // 'trace' | 'json' | 'preview'
   const [healthData, setHealthData] = useState(null);
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [copied, setCopied] = useState(false);
 
   // Poll service health on load
   useEffect(() => {
@@ -51,16 +65,23 @@ export default function App() {
       .catch(() => setHealthData({ status: 'offline' }));
   }, []);
 
+  // Timer during active generation
+  useEffect(() => {
+    let interval;
+    if (isGenerating) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime(prev => +(prev + 0.1).toFixed(1));
+      }, 100);
+    }
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
   const handleGenerate = async () => {
     if (!requestText.trim()) return;
     setIsGenerating(true);
     setResult(null);
     setErrorMsg(null);
-    setActiveStep(1);
-
-    // Simulate animated step transitions for transparency
-    const stepTimer1 = setTimeout(() => setActiveStep(2), 1200);
-    const stepTimer2 = setTimeout(() => setActiveStep(3), 2600);
 
     try {
       const response = await fetch('http://127.0.0.1:8000/agent', {
@@ -71,298 +92,371 @@ export default function App() {
 
       if (!response.ok) {
         const errJson = await response.json();
-        throw new Error(errJson.detail || 'Agent execution failed');
+        throw new Error(errJson.detail || 'Workflow execution failed');
       }
 
       const data = await response.json();
       setResult(data);
-      setActiveStep(4);
       confetti({
-        particleCount: 80,
+        particleCount: 70,
         spread: 60,
-        origin: { y: 0.7 }
+        origin: { y: 0.65 }
       });
     } catch (err) {
       setErrorMsg(err.message);
-      setActiveStep(0);
     } finally {
-      clearTimeout(stepTimer1);
-      clearTimeout(stepTimer2);
       setIsGenerating(false);
     }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#0a0f1d',
+      backgroundColor: '#070b14',
       color: '#f8fafc',
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      position: 'relative',
-      padding: '40px 24px 80px'
+      position: 'relative'
     }}>
       <ParticlesBackground />
 
-      <div style={{ maxWidth: '1180px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-        
-        {/* Navigation / Header */}
-        <header style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingBottom: '32px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          marginBottom: '40px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 24px rgba(99, 102, 241, 0.4)'
-            }}>
-              <Sparkles size={24} color="#ffffff" />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '-0.02em', margin: 0 }}>
-                Autonomous Document Agent
-              </h1>
-              <p style={{ fontSize: '13px', color: '#94a3b8', margin: '2px 0 0' }}>
-                Plan, Execute, Review, Deliver — Executive DOCX Generation
-              </p>
-            </div>
+      {/* Top Enterprise Control Bar */}
+      <nav style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        backgroundColor: 'rgba(7, 11, 20, 0.85)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        padding: '12px 32px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            width: '34px',
+            height: '34px',
+            borderRadius: '9px',
+            background: 'linear-gradient(135deg, #6366f1 0%, #38bdf8 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 0 16px rgba(99, 102, 241, 0.5)'
+          }}>
+            <Zap size={18} color="#ffffff" />
           </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '15px', fontWeight: '700', letterSpacing: '-0.01em', color: '#ffffff' }}>
+                FLUID AI
+              </span>
+              <span style={{
+                fontSize: '11px',
+                padding: '2px 7px',
+                borderRadius: '9999px',
+                backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                color: '#818cf8',
+                fontWeight: '600'
+              }}>
+                DOC-AGENT v1.0
+              </span>
+            </div>
+            <span style={{ fontSize: '11px', color: '#64748b' }}>
+              Autonomous Multi-Step Document Engine
+            </span>
+          </div>
+        </div>
 
-          {/* Service Status Badge */}
+        {/* Live Telemetry Pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            backgroundColor: 'rgba(15, 23, 42, 0.8)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            padding: '6px 14px',
-            borderRadius: '9999px',
+            padding: '5px 12px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(15, 23, 42, 0.6)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             fontSize: '12px'
           }}>
             <span style={{
-              width: '8px',
-              height: '8px',
+              width: '7px',
+              height: '7px',
               borderRadius: '50%',
               backgroundColor: healthData?.status === 'healthy' ? '#10b981' : '#f59e0b'
             }} />
-            <span style={{ color: '#cbd5e1' }}>
-              Model: <strong style={{ color: '#38bdf8' }}>{healthData?.model || 'qwen/qwen3.8-27b'}</strong>
+            <span style={{ color: '#94a3b8' }}>Engine:</span>
+            <span style={{ color: '#f8fafc', fontWeight: '600' }}>
+              {healthData?.model || 'qwen/qwen3.8-27b'}
             </span>
           </div>
-        </header>
 
-        {/* Main Content Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: result ? '1fr 1.2fr' : '1fr', gap: '32px', alignItems: 'start' }}>
-          
-          {/* Left Column: Intake & Prompt Studio */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <a
+            href="http://127.0.0.1:8000/docs"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#cbd5e1',
+              fontSize: '12px',
+              fontWeight: '500',
+              textDecoration: 'none',
+              transition: 'background-color 0.2s ease'
+            }}
+          >
+            <span>FastAPI Docs</span>
+            <ExternalLink size={13} />
+          </a>
+        </div>
+      </nav>
+
+      {/* Main Studio Workspace */}
+      <main style={{
+        maxWidth: '1520px',
+        margin: '0 auto',
+        padding: '32px 32px 64px',
+        position: 'relative',
+        zIndex: 10
+      }}>
+
+        {/* Hero Headline */}
+        <div style={{ marginBottom: '28px' }}>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: '700',
+            letterSpacing: '-0.03em',
+            margin: '0 0 8px',
+            background: 'linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            Autonomous Document Synthesis & Review
+          </h1>
+          <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0, maxWidth: '780px' }}>
+            Transform unstructured instructions into verified, publication-ready Word documents. Built with dynamic DAG planning, cycle verification, and reflection checks.
+          </p>
+        </div>
+
+        {/* Studio Grid: Left Control Plane + Right Document Inspector */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: result ? '460px 1fr' : '1fr',
+          gap: '24px',
+          alignItems: 'start',
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+
+          {/* LEFT: Generation Control Center */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            {/* Prompt Studio Card */}
-            <SpotlightCard style={{ padding: '28px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Layers size={18} color="#818cf8" />
-                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#e2e8f0' }}>Stage 1 — Natural Language Intake</span>
-                </div>
-                <span style={{ fontSize: '12px', color: '#64748b' }}>FastAPI Endpoint: POST /agent</span>
+            <SpotlightCard style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '600', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Terminal size={16} color="#818cf8" />
+                  <span>Instruction Input</span>
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>Markdown / Natural Language</span>
               </div>
 
               <textarea
                 value={requestText}
                 onChange={(e) => setRequestText(e.target.value)}
-                placeholder="Describe your desired business document (e.g., project plan, proposal, technical architecture, SOP)..."
-                rows={5}
+                placeholder="State your document objective..."
+                rows={6}
                 style={{
                   width: '100%',
                   boxSizing: 'border-box',
-                  backgroundColor: 'rgba(2, 6, 23, 0.6)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '12px',
+                  backgroundColor: 'rgba(2, 6, 23, 0.75)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '10px',
                   padding: '14px 16px',
                   color: '#f8fafc',
-                  fontSize: '14px',
+                  fontSize: '13.5px',
                   lineHeight: '1.6',
                   resize: 'vertical',
                   outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  transition: 'border-color 0.2s'
                 }}
               />
 
-              {/* Sample Quick Selector */}
-              <div style={{ marginTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8', display: 'block', marginBottom: '8px' }}>
-                  Quick Demonstration Presets:
-                </span>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {SAMPLE_REQUESTS.map((sample, idx) => (
+              {/* Template Pill Carousel */}
+              <div style={{ marginTop: '14px' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px', fontWeight: '500' }}>
+                  Enterprise Benchmark Presets:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {SAMPLE_TEMPLATES.map((tmpl, i) => (
                     <button
-                      key={idx}
-                      onClick={() => setRequestText(sample.text)}
+                      key={i}
+                      onClick={() => setRequestText(tmpl.text)}
                       style={{
-                        backgroundColor: 'rgba(30, 41, 59, 0.7)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        color: '#cbd5e1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
                         borderRadius: '8px',
-                        padding: '6px 12px',
+                        backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                        color: '#cbd5e1',
                         fontSize: '12px',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease'
                       }}
                     >
-                      {sample.title}
+                      <span style={{ fontWeight: '500' }}>{tmpl.title}</span>
+                      <span style={{
+                        fontSize: '10px',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                        color: '#818cf8'
+                      }}>
+                        {tmpl.tag}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Launch Button */}
+              {/* Submit CTA */}
               <button
                 onClick={handleGenerate}
                 disabled={isGenerating || !requestText.trim()}
                 style={{
-                  marginTop: '24px',
+                  marginTop: '20px',
                   width: '100%',
-                  padding: '14px 20px',
-                  borderRadius: '12px',
-                  background: isGenerating 
-                    ? 'rgba(99, 102, 241, 0.4)'
-                    : 'linear-gradient(135deg, #6366f1 0%, #38bdf8 100%)',
+                  padding: '13px 20px',
+                  borderRadius: '10px',
+                  background: isGenerating
+                    ? 'rgba(99, 102, 241, 0.3)'
+                    : 'linear-gradient(135deg, #4f46e5 0%, #0284c7 100%)',
                   color: '#ffffff',
                   fontWeight: '600',
-                  fontSize: '15px',
+                  fontSize: '14px',
                   border: 'none',
                   cursor: isGenerating ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '10px',
-                  boxShadow: '0 8px 24px rgba(99, 102, 241, 0.35)',
-                  transition: 'all 0.2s ease'
+                  gap: '8px',
+                  boxShadow: '0 4px 20px rgba(79, 70, 229, 0.4)',
+                  transition: 'transform 0.1s ease'
                 }}
               >
                 {isGenerating ? (
                   <>
-                    <RefreshCw size={18} className="animate-spin" />
-                    <span>Orchestrating Autonomous Workflow...</span>
+                    <RefreshCw size={16} className="animate-spin" />
+                    <span>Executing Pipeline ({elapsedTime}s)...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles size={18} />
-                    <span>Generate Executive Document</span>
-                    <ArrowRight size={18} />
+                    <Sparkles size={16} />
+                    <span>Synthesize Document</span>
+                    <ArrowRight size={16} />
                   </>
                 )}
               </button>
 
               {errorMsg && (
                 <div style={{
-                  marginTop: '16px',
-                  padding: '12px 16px',
+                  marginTop: '14px',
+                  padding: '10px 14px',
                   borderRadius: '8px',
                   backgroundColor: 'rgba(239, 68, 68, 0.15)',
                   border: '1px solid rgba(239, 68, 68, 0.3)',
                   color: '#fca5a5',
-                  fontSize: '13px',
+                  fontSize: '12.5px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  <AlertCircle size={16} />
+                  <AlertCircle size={15} />
                   <span>{errorMsg}</span>
                 </div>
               )}
             </SpotlightCard>
 
-            {/* Workflow Pipeline Tracker */}
-            <SpotlightCard style={{ padding: '24px' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#e2e8f0', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Cpu size={16} color="#38bdf8" />
-                <span>Autonomous Lifecycle Execution</span>
-              </h3>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {[
-                  { step: 1, label: "Stage 1: Intent Analysis & Non-Fabricated Assumptions" },
-                  { step: 2, label: "Stage 2: Dynamic DAG Planning & Cycle Check (Kahn's Algorithm)" },
-                  { step: 3, label: "Stage 3 & 4: Tool Execution & Content Synthesis" },
-                  { step: 4, label: "Stage 5 & 6: Reflection Review & Word (.docx) Compilation" }
-                ].map((item) => {
-                  const isDone = activeStep > item.step || result;
-                  const isCurrent = activeStep === item.step && isGenerating;
-                  return (
-                    <div key={item.step} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{
-                        width: '26px',
-                        height: '26px',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        backgroundColor: isDone ? '#10b981' : isCurrent ? '#6366f1' : 'rgba(255, 255, 255, 0.08)',
-                        color: isDone || isCurrent ? '#ffffff' : '#94a3b8',
-                        transition: 'all 0.3s ease'
-                      }}>
-                        {isDone ? <CheckCircle2 size={16} /> : item.step}
-                      </div>
-                      <span style={{
-                        fontSize: '13px',
-                        color: isDone ? '#f8fafc' : isCurrent ? '#38bdf8' : '#64748b',
-                        fontWeight: isCurrent ? '600' : '400'
-                      }}>
-                        {item.label}
-                      </span>
-                    </div>
-                  );
-                })}
+            {/* Stage Architecture Breakdown */}
+            <SpotlightCard style={{ padding: '20px' }}>
+              <div style={{ fontSize: '12px', fontWeight: '600', color: '#94a3b8', marginBottom: '12px', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Pipeline Architecture Guardrails
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#cbd5e1' }}>
+                  <ShieldCheck size={15} color="#10b981" />
+                  <span><strong>Factual Grounding:</strong> No invented exact budget figures</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#cbd5e1' }}>
+                  <Cpu size={15} color="#38bdf8" />
+                  <span><strong>DAG Scheduler:</strong> Kahn's algorithm cycle prevention</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#cbd5e1' }}>
+                  <CheckCircle2 size={15} color="#818cf8" />
+                  <span><strong>Self-Correction:</strong> Bounded repair on quality findings</span>
+                </div>
               </div>
             </SpotlightCard>
 
           </div>
 
-          {/* Right Column: Execution Output & Artifact Showcase */}
+          {/* RIGHT: Production Document & Trace Console */}
           {result && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
-              {/* Document Overview Banner */}
+              {/* Document Master Card */}
               <SpotlightCard style={{
-                padding: '28px',
-                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
-                border: '1px solid rgba(99, 102, 241, 0.3)'
+                padding: '24px',
+                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%)',
+                border: '1px solid rgba(99, 102, 241, 0.35)'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <span style={{
-                      backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                      color: '#a5b4fc',
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      letterSpacing: '0.04em',
-                      textTransform: 'uppercase'
-                    }}>
-                      {result.document_type}
-                    </span>
-                    <h2 style={{ fontSize: '20px', fontWeight: '700', margin: '12px 0 6px', color: '#ffffff' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        color: '#a5b4fc',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        letterSpacing: '0.04em'
+                      }}>
+                        {result.document_type.toUpperCase()}
+                      </span>
+                      <span style={{
+                        fontSize: '11px',
+                        color: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        padding: '3px 8px',
+                        borderRadius: '4px',
+                        fontWeight: '600'
+                      }}>
+                        VERIFIED DRAFT
+                      </span>
+                    </div>
+
+                    <h2 style={{ fontSize: '22px', fontWeight: '700', margin: '12px 0 6px', color: '#ffffff' }}>
                       {result.title}
                     </h2>
-                    <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>
-                      Request ID: <code style={{ color: '#38bdf8' }}>{result.request_id}</code>
-                    </p>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
+                      Artifact URL: <code style={{ color: '#38bdf8' }}>{result.document_url}</code>
+                    </span>
                   </div>
 
+                  {/* Primary Download Button */}
                   <a
                     href={`http://127.0.0.1:8000${result.document_url}`}
                     download
@@ -372,91 +466,178 @@ export default function App() {
                       gap: '8px',
                       backgroundColor: '#10b981',
                       color: '#ffffff',
-                      padding: '10px 18px',
-                      borderRadius: '10px',
-                      fontSize: '13px',
+                      padding: '11px 20px',
+                      borderRadius: '8px',
+                      fontSize: '13.5px',
                       fontWeight: '600',
                       textDecoration: 'none',
-                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                      boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)',
                       transition: 'transform 0.15s ease'
                     }}
                   >
                     <Download size={16} />
-                    <span>Download DOCX</span>
+                    <span>Download .DOCX</span>
                   </a>
                 </div>
 
-                {/* Quality Score & Status Chips */}
+                {/* Score & Telemetry Bar */}
                 <div style={{
                   display: 'flex',
-                  gap: '12px',
+                  gap: '24px',
                   marginTop: '20px',
                   paddingTop: '16px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  fontSize: '12.5px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#94a3b8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <ShieldCheck size={16} color="#10b981" />
-                    <span>Quality Pass: <strong style={{ color: '#10b981' }}>{result.quality_review.score * 100}% Score</strong></span>
+                    <span style={{ color: '#94a3b8' }}>Quality Check:</span>
+                    <strong style={{ color: '#10b981' }}>{result.quality_review.score * 100}% Passed</strong>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#94a3b8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Cpu size={16} color="#38bdf8" />
-                    <span>Inference Mode: <strong style={{ color: '#38bdf8' }}>{result.llm_mode}</strong></span>
+                    <span style={{ color: '#94a3b8' }}>Inference Provider:</span>
+                    <strong style={{ color: '#38bdf8' }}>{result.llm_mode.toUpperCase()}</strong>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Activity size={16} color="#818cf8" />
+                    <span style={{ color: '#94a3b8' }}>Tasks Executed:</span>
+                    <strong style={{ color: '#f8fafc' }}>{result.plan.length} Steps</strong>
                   </div>
                 </div>
               </SpotlightCard>
 
-              {/* Execution Plan DAG Trace */}
-              <SpotlightCard style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#e2e8f0', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <ListChecks size={18} color="#818cf8" />
-                  <span>Dynamic Execution Trace (Multi-Step Plan)</span>
-                </h3>
+              {/* Multi-Tab Console (Trace / Assumptions / Raw JSON) */}
+              <SpotlightCard style={{ padding: '0px' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 20px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.5)'
+                }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {[
+                      { id: 'trace', label: 'Task Execution Trace', icon: ListChecks },
+                      { id: 'assumptions', label: 'Operational Assumptions', icon: ShieldCheck },
+                      { id: 'json', label: 'Raw API Payload', icon: FileCode }
+                    ].map(tab => {
+                      const Icon = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            backgroundColor: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                            color: isActive ? '#a5b4fc' : '#94a3b8',
+                            border: isActive ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid transparent',
+                            fontSize: '12.5px',
+                            fontWeight: '500',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Icon size={14} />
+                          <span>{tab.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {result.plan.map((task) => (
-                    <div
-                      key={task.id}
+                  {activeTab === 'json' && (
+                    <button
+                      onClick={() => copyToClipboard(JSON.stringify(result, null, 2))}
                       style={{
-                        padding: '12px 16px',
-                        borderRadius: '10px',
-                        backgroundColor: 'rgba(2, 6, 23, 0.5)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)'
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#94a3b8',
+                        fontSize: '11px',
+                        cursor: 'pointer'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#38bdf8' }}>{task.id.toUpperCase()}</span>
-                        <span style={{
-                          fontSize: '11px',
-                          color: '#10b981',
-                          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontWeight: '600'
-                        }}>
-                          {task.status}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '13px', color: '#f1f5f9', fontWeight: '500', marginBottom: '4px' }}>
-                        {task.description}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-                        Result: {task.result}
-                      </div>
-                    </div>
-                  ))}
+                      {copied ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
+                      <span>{copied ? 'Copied' : 'Copy JSON'}</span>
+                    </button>
+                  )}
                 </div>
-              </SpotlightCard>
 
-              {/* Grounded Assumptions */}
-              <SpotlightCard style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#e2e8f0', margin: '0 0 12px' }}>
-                  Operational Assumptions & Guardrails
-                </h3>
-                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.7' }}>
-                  {result.assumptions.map((assump, idx) => (
-                    <li key={idx}>{assump}</li>
-                  ))}
-                </ul>
+                {/* Tab 1: Execution Trace */}
+                {activeTab === 'trace' && (
+                  <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {result.plan.map((t, idx) => (
+                      <div
+                        key={t.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '14px',
+                          padding: '12px 14px',
+                          borderRadius: '8px',
+                          backgroundColor: 'rgba(2, 6, 23, 0.6)',
+                          border: '1px solid rgba(255, 255, 255, 0.05)'
+                        }}
+                      >
+                        <div style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                          color: '#10b981',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '11px',
+                          fontWeight: '700'
+                        }}>
+                          {idx + 1}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '13px', fontWeight: '600', color: '#f1f5f9' }}>{t.description}</span>
+                            <span style={{ fontSize: '11px', color: '#10b981', fontWeight: '600' }}>{t.status.toUpperCase()}</span>
+                          </div>
+                          <span style={{ fontSize: '12px', color: '#94a3b8' }}>{t.result}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Tab 2: Assumptions */}
+                {activeTab === 'assumptions' && (
+                  <div style={{ padding: '20px' }}>
+                    <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.7' }}>
+                      {result.assumptions.map((a, i) => (
+                        <li key={i} style={{ marginBottom: '6px' }}>{a}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Tab 3: Raw JSON */}
+                {activeTab === 'json' && (
+                  <pre style={{
+                    margin: 0,
+                    padding: '20px',
+                    fontSize: '12px',
+                    color: '#38bdf8',
+                    fontFamily: 'monospace',
+                    overflowX: 'auto',
+                    backgroundColor: 'rgba(2, 6, 23, 0.85)',
+                    maxHeight: '400px'
+                  }}>
+                    {JSON.stringify(result, null, 2)}
+                  </pre>
+                )}
               </SpotlightCard>
 
             </div>
@@ -464,7 +645,7 @@ export default function App() {
 
         </div>
 
-      </div>
+      </main>
     </div>
   );
 }
