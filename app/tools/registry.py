@@ -74,14 +74,28 @@ Return ONLY valid JSON matching this schema:
 
         # Deterministic fallback outline based on document type
         doc_type_lower = intake.document_type.lower()
-        if "project" in doc_type_lower:
-            doc_title = (
-                f"Project Plan: {intake.objective}"
-                if not intake.objective.lower().startswith("project plan")
-                else intake.objective
-            )
+        from app.agent.planner import clean_title_phrase
+        clean_topic = clean_title_phrase(intake.objective, max_chars=80)
+        if not clean_topic:
+            clean_topic = "Operational Architecture"
+
+        if "technical" in doc_type_lower or "design" in doc_type_lower or "architecture" in doc_type_lower:
             return {
-                "title": doc_title,
+                "title": f"Technical Design Document: {clean_topic.capitalize()}",
+                "subtitle": f"Target Audience: {intake.target_audience}",
+                "document_type": intake.document_type,
+                "executive_summary_needed": True,
+                "required_sections": [
+                    {"heading": "1. System Overview & Architectural Objectives", "level": 1, "purpose": "Define technical targets and boundaries", "requires_table": False, "table_type": "none"},
+                    {"heading": "2. Component Architecture & Data Pipeline", "level": 1, "purpose": "Tier-by-tier component breakdown", "requires_table": True, "table_type": "timeline"},
+                    {"heading": "3. Data Flow & Communication Protocols", "level": 1, "purpose": "End-to-end event sequence and messaging", "requires_table": False, "table_type": "none"},
+                    {"heading": "4. Operational Resilience & Security Architecture", "level": 1, "purpose": "Failure modes and cryptographic controls", "requires_table": True, "table_type": "risks"},
+                    {"heading": "5. Performance Benchmarks & Quality Criteria", "level": 1, "purpose": "Throughput and latency SLAs", "requires_table": False, "table_type": "none"},
+                ]
+            }
+        elif "project" in doc_type_lower:
+            return {
+                "title": f"Project Plan: {clean_topic.capitalize()}",
                 "subtitle": f"Target Audience: {intake.target_audience}",
                 "document_type": intake.document_type,
                 "executive_summary_needed": True,
@@ -94,13 +108,8 @@ Return ONLY valid JSON matching this schema:
                 ]
             }
         elif "proposal" in doc_type_lower:
-            doc_title = (
-                f"Business Proposal: {intake.objective}"
-                if not intake.objective.lower().startswith("business proposal")
-                else intake.objective
-            )
             return {
-                "title": doc_title,
+                "title": f"Business Proposal: {clean_topic.capitalize()}",
                 "subtitle": f"Prepared for: {intake.target_audience}",
                 "document_type": intake.document_type,
                 "executive_summary_needed": True,
@@ -114,7 +123,7 @@ Return ONLY valid JSON matching this schema:
             }
         else:
             return {
-                "title": f"Business Document: {intake.objective}",
+                "title": f"Business Document: {clean_topic.capitalize()}",
                 "subtitle": f"Target Audience: {intake.target_audience}",
                 "document_type": intake.document_type,
                 "executive_summary_needed": True,
