@@ -145,7 +145,7 @@ export default function App() {
   // Chat History State (Persisted in localStorage)
   const [chatHistory, setChatHistory] = useState(() => {
     try {
-      const saved = localStorage.getItem('docusynth_chat_history');
+      const saved = localStorage.getItem('scribeai_chat_history') || localStorage.getItem('docusynth_chat_history');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -157,7 +157,7 @@ export default function App() {
   // Save history on change
   useEffect(() => {
     try {
-      localStorage.setItem('docusynth_chat_history', JSON.stringify(chatHistory));
+      localStorage.setItem('scribeai_chat_history', JSON.stringify(chatHistory));
     } catch (e) {
       console.error('Failed to save chat history to localStorage', e);
     }
@@ -197,6 +197,7 @@ export default function App() {
   const handleClearAllHistory = () => {
     if (window.confirm("Clear all generation history?")) {
       setChatHistory([]);
+      localStorage.removeItem('scribeai_chat_history');
       localStorage.removeItem('docusynth_chat_history');
       handleNewChat();
     }
@@ -345,7 +346,7 @@ export default function App() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em', color: '#ffffff' }}>
-                DOCUSYNTH
+                SCRIBE<span style={{ color: '#00f5a0' }}>AI</span>
               </span>
               <span style={{
                 fontSize: '10px',
